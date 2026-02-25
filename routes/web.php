@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\AIQuestionController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\DashboardController;
 
 
 Route::get('/', function () {
@@ -18,9 +19,11 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+
+Route::middleware(['auth', 'verified'])
+    ->get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
 Route::post('/ai/questions', [AIQuestionController::class, 'generate'])
     ->middleware('auth')
