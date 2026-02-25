@@ -4,6 +4,10 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\AIQuestionController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\TestController;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -17,6 +21,10 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::post('/ai/questions', [AIQuestionController::class, 'generate'])
+    ->middleware('auth')
+    ->name('ai.questions');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -38,11 +46,23 @@ Route::middleware('auth')->group(function () {
             'type' => $type
         ]);
     });
-    Route::middleware(['auth'])->group(function () {
+
+
+
+
+
+
+    Route::middleware('auth')->get('/questions/test/{type}', [QuestionController::class, 'index']);
+   Route::middleware(['auth'])->group(function () {
     Route::get('/tests/end', function () {
         return Inertia::render('Tests/End');
     })->name('tests.end');
 });
+   
+
+Route::middleware('auth')->post('/tests/summary', [TestController::class, 'summary'])
+    ->name('tests.summary');
+
 });
 
 

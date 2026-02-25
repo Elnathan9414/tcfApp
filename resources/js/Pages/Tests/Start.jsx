@@ -1,197 +1,216 @@
-import { Head, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, usePage, router } from '@inertiajs/react';
+import { useEffect, useState, useRef } from 'react';
 
-export default function Start({ type }) {
+export default function Start() {
+    const { type } = usePage().props;
 
-    // TIMER GLOBAL (20 minutes)
-    const [globalTime, setGlobalTime] = useState(20 * 60);
-
-    // TIMER PAR QUESTION (30 secondes)
-    const QUESTION_TIME = 30;
-    const [questionTime, setQuestionTime] = useState(QUESTION_TIME);
-
-    // QUESTIONS (temporaire — plus tard : chargées depuis Laravel)
-    const questions = [
-        {
-            text: "Quel est l’objet principal du message ?",
-            choices: [
-                "A. Une invitation",
-                "B. Une réclamation",
-                "C. Une information",
-                "D. Une publicité"
-            ]
-        },
-        {
-            text: "Que doit faire le destinataire du message ?",
-            choices: [
-                "A. Appeler un numéro",
-                "B. Remplir un formulaire",
-                "C. Se présenter à un rendez-vous",
-                "D. Envoyer un email"
-            ]
-        },
-        {
-            text: "Quel est le ton général du message ?",
-            choices: [
-                "A. Urgent",
-                "B. Informel",
-                "C. Professionnel",
-                "D. Humoristique"
-            ]
-        }
-    ];
-
-    // INDEX DE QUESTION
+    const [questions, setQuestions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // RÉPONSES DE L’UTILISATEUR
+    const [globalTime, setGlobalTime] = useState(15 * 60); // 15 min global
+    const [questionTime, setQuestionTime] = useState(30); // 30 sec par question
+
+    const globalTimerRef = useRef(null);
+    const questionTimerRef = useRef(null);
+
     const [answers, setAnswers] = useState({});
 
-    const question = questions[currentIndex];
-
-    // FIN DU TEST
-    const finishTest = () => {
-        router.visit('/tests/end');
-    };
-
-    // TIMER GLOBAL COUNTDOWN
+    // -------------------------------
+    // Charger les questions
+    // -------------------------------
     useEffect(() => {
-        if (globalTime <= 0) {
-            finishTest();
-            return;
-        }
+        fetch(`/questions/test/${type}`)
+            .then(res => res.json())
+            .then(data => {
+                setQuestions(data.questions);
+            });
+    }, [type]);
 
-        const interval = setInterval(() => {
-            setGlobalTime(prev => prev - 1);
+    // -------------------------------
+    // Timer global
+    // -------------------------------
+    useEffect(() => {
+        globalTimerRef.current = setInterval(() => {
+            setGlobalTime(prev => {
+                if (prev <= 1) {
+                    finishTest();
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
 
-        return () => clearInterval(interval);
-    }, [globalTime]);
+        return () => clearInterval(globalTimerRef.current);
+    }, []);
 
-    // TIMER PAR QUESTION COUNTDOWN
+    // -------------------------------
+    // Timer par question
+    // -------------------------------
     useEffect(() => {
-        if (questionTime <= 0) {
-            if (currentIndex === questions.length - 1) {
-                finishTest();
-            } else {
-                nextQuestion();
-            }
-            return;
-        }
+        resetQuestionTimer();
+        return () => clearInterval(questionTimerRef.current);
+    }, [currentIndex]);
 
-        const interval = setInterval(() => {
-            setQuestionTime(prev => prev - 1);
+    const resetQuestionTimer = () => {
+        clearInterval(questionTimerRef.current);
+        setQuestionTime(30);
+
+        questionTimerRef.current = setInterval(() => {
+            setQuestionTime(prev => {
+                if (prev <= 1) {
+                    goNext();
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
-
-        return () => clearInterval(interval);
-    }, [questionTime]);
-
-    // SÉLECTION DE RÉPONSE
-    const selectAnswer = (choice) => {
-        setAnswers({
-            ...answers,
-            [currentIndex]: choice
-        });
     };
 
-    // NAVIGATION
-    const nextQuestion = () => {
-        if (currentIndex < questions.length - 1) {
+    // -------------------------------
+    // Navigation
+    // -------------------------------
+    const goNext = () => {
+        if (currentIndex + 1 < questions.length) {
             setCurrentIndex(currentIndex + 1);
-            setQuestionTime(QUESTION_TIME); // reset timer
         } else {
             finishTest();
         }
     };
 
-    const prevQuestion = () => {
+    const goPrev = () => {
         if (currentIndex > 0) {
             setCurrentIndex(currentIndex - 1);
-            setQuestionTime(QUESTION_TIME); // reset timer
         }
     };
 
+    // -------------------------------
+    // Sauvegarder une réponse
+    // -------------------------------
+    const saveAnswer = (questionId, value) => {
+        setAnswers(prev => ({
+            ...prev,
+            [questionId]: value
+        }));
+    };
+
+    // -------------------------------
+    // Fin du test → redirection
+    // -------------------------------
+    const finishTest = () => {
+        clearInterval(globalTimerRef.current);
+        clearInterval(questionTimerRef.current);
+
+        router.visit('/tests/summary', {
+            method: 'post',
+            data: {
+                type,
+                answers
+            }
+        });
+    };
+
+    // -------------------------------
+    // Formatage du temps
+    // -------------------------------
+    const formatTime = (sec) => {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
+    // -------------------------------
+    // Rendu
+    // -------------------------------
+    if (questions.length === 0) {
+        return (
+            <AuthenticatedLayout>
+                <p className="p-10">Chargement...</p>
+            </AuthenticatedLayout>
+        );
+    }
+
+    const q = questions[currentIndex];
+
     return (
-        <AuthenticatedLayout>
-            <Head title="Test TCF - En cours" />
+        <>
+            <Head title="Épreuve" />
 
-            <div className="min-h-screen bg-gray-50 py-10">
-                <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow">
+            <AuthenticatedLayout>
+                <div className="min-h-screen bg-gray-50 py-10">
+                    <div className="max-w-4xl mx-auto bg-white p-10 rounded-xl shadow">
 
-                    {/* TYPE D'ÉPREUVE */}
-                    <div className="mb-6 text-gray-700 text-lg">
-                        <span className="font-semibold">Épreuve sélectionnée :</span> {type}
-                    </div>
+                        {/* Timers */}
+                        <div className="flex justify-between mb-6">
+                            <div className="text-xl font-bold text-blue-600">
+                                Temps global : {formatTime(globalTime)}
+                            </div>
+                            <div className="text-xl font-bold text-red-600">
+                                Temps question : {formatTime(questionTime)}
+                            </div>
+                        </div>
 
-                    {/* TIMER GLOBAL */}
-                    <div className="text-right text-xl font-bold text-red-600 mb-2">
-                        Temps global : {Math.floor(globalTime / 60)}:
-                        {String(globalTime % 60).padStart(2, '0')}
-                    </div>
+                        {/* Question */}
+                        <h2 className="text-2xl font-bold mb-4">
+                            Question {currentIndex + 1} / {questions.length}
+                        </h2>
 
-                    {/* TIMER PAR QUESTION */}
-                    <div className="text-right text-lg font-semibold text-blue-600 mb-6">
-                        Temps question : {questionTime}s
-                    </div>
+                        <p className="text-lg mb-6">{q.text}</p>
 
-                    {/* QUESTION */}
-                    <h1 className="text-2xl font-bold mb-6">
-                        {question.text}
-                    </h1>
+                        {/* Choix */}
+                        {q.choices && q.choices.length > 0 ? (
+                            <div className="space-y-3">
+                                {q.choices.map((choice, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => saveAnswer(q.id, choice)}
+                                        className={`block w-full text-left p-4 border rounded-lg 
+                                            ${answers[q.id] === choice ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-100'}`}
+                                    >
+                                        {choice}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <textarea
+                                className="w-full border rounded p-3"
+                                rows="5"
+                                placeholder="Écris ta réponse ici..."
+                                value={answers[q.id] || ""}
+                                onChange={(e) => saveAnswer(q.id, e.target.value)}
+                            ></textarea>
+                        )}
 
-                    {/* CHOIX */}
-                    <div className="space-y-4">
-                        {question.choices.map((choice, index) => (
-                            <label
-                                key={index}
-                                className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
-                            >
-                                <input
-                                    type="radio"
-                                    name="answer"
-                                    checked={answers[currentIndex] === choice}
-                                    onChange={() => selectAnswer(choice)}
-                                />
-                                <span>{choice}</span>
-                            </label>
-                        ))}
-                    </div>
-
-                    {/* NAVIGATION */}
-                    <div className="mt-8 flex justify-between items-center">
-
-                        <button
-                            onClick={prevQuestion}
-                            disabled={currentIndex === 0}
-                            className="px-6 py-3 bg-gray-300 rounded-lg disabled:opacity-50"
-                        >
-                            Précédent
-                        </button>
-
-                        <div className="flex space-x-4">
-
+                        {/* Navigation */}
+                        <div className="flex justify-between mt-10">
                             <button
-                                onClick={nextQuestion}
-                                disabled={currentIndex === questions.length - 1}
-                                className="px-6 py-3 bg-blue-600 text-white rounded-lg disabled:bg-blue-300"
+                                onClick={goPrev}
+                                disabled={currentIndex === 0}
+                                className="px-6 py-3 bg-gray-200 rounded disabled:opacity-50"
                             >
-                                Suivant
+                                Précédent
                             </button>
 
-                            <button
-                                onClick={finishTest}
-                                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                            >
-                                Terminer le test
-                            </button>
-
+                            {currentIndex + 1 === questions.length ? (
+                                <button
+                                    onClick={finishTest}
+                                    className="px-6 py-3 bg-green-600 text-white rounded"
+                                >
+                                    Terminer
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={goNext}
+                                    className="px-6 py-3 bg-blue-600 text-white rounded"
+                                >
+                                    Suivant
+                                </button>
+                            )}
                         </div>
 
                     </div>
-
                 </div>
-            </div>
-        </AuthenticatedLayout>
+            </AuthenticatedLayout>
+        </>
     );
 }
