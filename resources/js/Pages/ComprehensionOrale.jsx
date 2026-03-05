@@ -19,18 +19,17 @@ export default function ComprehensionOrale({ questions }) {
                 <h1 className="text-3xl font-bold text-center text-gray-200">Compréhension orale</h1>
 
                 {/* Boutons des 20 exercices */}
-                <div className="grid grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {[...Array(20)].map((_, i) => {
                         const num = i + 1;
                         return (
                             <button
                                 key={num}
                                 onClick={() => setActiveExercise(num)}
-                                className={`p-3 rounded-lg border text-center ${
-                                    activeExercise === num
+                                className={`p-3 rounded-lg border text-center ${activeExercise === num
                                         ? "bg-blue-600 text-white"
                                         : "bg-white hover:bg-gray-100"
-                                }`}
+                                    }`}
                             >
                                 Exercice {num}
                             </button>
@@ -39,47 +38,61 @@ export default function ComprehensionOrale({ questions }) {
                 </div>
 
                 {/* Affichage de l'exercice sélectionné */}
-                <div className="bg-white p-6 rounded-xl shadow space-y-6">
-                    <h2 className="text-2xl font-semibold">
-                        Exercice {activeExercise}
-                    </h2>
+                {/* AUDIO EN HAUT */}
+{exerciseQuestions[0]?.audio && (
+    <audio
+        controls
+        src={`/storage/${exerciseQuestions[0].audio}`}
+        className="w-full mb-6"
+    />
+)}
 
-                    {exerciseQuestions.length === 0 && (
-                        <p>Aucune question pour cet exercice.</p>
+{/* IMAGE À GAUCHE / QUESTIONS À DROITE */}
+
+{/* AUDIO UNIQUE POUR TOUT L’EXERCICE */}
+
+
+{/* SECTIONS PAR QUESTION */}
+<div className="space-y-10">
+    {exerciseQuestions.map((q) => (
+        <div key={q.id} className="bg-white p-6 rounded-xl shadow space-y-6">
+
+            {/* IMAGE À GAUCHE / QUESTION À DROITE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
+                {/* IMAGE */}
+                <div>
+                    {q.image && (
+                        <img
+                            src={`/storage/${q.image}`}
+                            alt="Illustration"
+                            className="rounded-lg w-full max-w-md border shadow"
+                        />
                     )}
-
-                    {exerciseQuestions.map((q) => (
-                        <div key={q.id} className="space-y-4">
-
-                            {/* Audio */}
-                            {q.audio && (
-                                <audio controls src={`/storage/${q.audio}`} className="w-full" />
-                            )}
-
-                            {/* Image */}
-                            {q.image && (
-                                <img
-                                    src={`/storage/${q.image}`}
-                                    alt="Illustration"
-                                    className="rounded-lg max-w-md"
-                                />
-                            )}
-
-                            <p className="font-medium">{q.question}</p>
-
-                            <div className="space-y-2">
-                                {q.choices.map((choice, i) => (
-                                    <label key={i} className="flex items-center space-x-2">
-                                        <input type="radio" name={`q-${q.id}`} />
-                                        <span>{choice}</span>
-                                    </label>
-                                ))}
-                            </div>
-
-                            <hr />
-                        </div>
-                    ))}
                 </div>
+
+                {/* QUESTION + CHOIX */}
+                <div className="space-y-4">
+                    <p className="font-medium">{q.question}</p>
+
+                    <div className="space-y-2">
+                        {q.choices.map((choice, i) => (
+                            <label key={i} className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    name={`q-${q.id}`}
+                                    onChange={() => handleSelect(q.id, i)}
+                                />
+                                <span>{choice}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    ))}
+</div>
             </div>
         </AuthenticatedLayout>
     );
