@@ -4,10 +4,10 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\AIQuestionController;
-use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Question;
+use App\Http\Controllers\Admin\QuestionController;
 
 
 Route::get('/', function () {
@@ -25,9 +25,7 @@ Route::middleware(['auth', 'verified'])
     ->get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
-Route::post('/ai/questions', [AIQuestionController::class, 'generate'])
-    ->middleware('auth')
-    ->name('ai.questions');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -44,24 +42,30 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Tests/Options');
     });
 
-    Route::get('/tests/start/{type}', function ($type) {
+    Route::get('/tests/start/{url}', function ($url) {
         return Inertia::render('Tests/Start', [
-            'type' => $type
+            'url' => $url
         ]);
     });
 
 
 
+Route::middleware(['auth'])->get('/comprehension-orale', function () {
+    return Inertia::render('ComprehensionOrale', [
+        'questions' => Question::where('type', 'comprehension_orale')
+            ->orderBy('exercise_number')
+            ->get()
+    ]);
+})->name('comprehension.orale');
 
 
 
-    Route::middleware('auth')->get('/questions/test/{type}', [QuestionController::class, 'index']);
-   Route::middleware(['auth'])->group(function () {
-    Route::get('/tests/end', function () {
-        return Inertia::render('Tests/End');
-    })->name('tests.end');
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/questions', [QuestionController::class, 'index'])->name('admin.questions.index');
+    Route::post('/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
+    Route::put('/questions/{id}', [QuestionController::class, 'update'])->name('admin.questions.update');
+    Route::delete('/questions/{id}', [QuestionController::class, 'destroy'])->name('admin.questions.destroy');
 });
-   
 
 Route::middleware('auth')->post('/tests/summary', [TestController::class, 'summary'])
     ->name('tests.summary');

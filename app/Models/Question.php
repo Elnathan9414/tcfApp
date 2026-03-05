@@ -9,16 +9,20 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'text',
-        'choices',
-        'answer',
-        'type',
-    ];
+   protected $fillable = [
+    'type',
+    'exercise_number',
+    'question',
+    'choices',
+    'answer',
+    'audio',
+    'image',
+];
 
     protected $casts = [
-        'choices' => 'array', // JSON → array automatique
-];
+        'choices' => 'array',
+    ];
+
 
 
 

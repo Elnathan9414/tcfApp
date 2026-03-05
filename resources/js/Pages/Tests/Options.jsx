@@ -3,10 +3,10 @@ import { Head, Link } from '@inertiajs/react';
 
 export default function Options() {
     const options = [
-        { label: "Compréhension orale", type: "orale" },
-        { label: "Compréhension écrite", type: "ecrite" },
-        { label: "Expression écrite", type: "expression_ecrite" },
-        { label: "Expression orale", type: "expression_orale" },
+        { label: "Compréhension orale", url: "/comprehension-orale" },
+        { label: "Structure de la langue", url: "/structure-langue" },
+        { label: "Compréhension écrite", url: "/comprehension-ecrite" },
+        { label: "Expression écrite", url: "/expression-ecrite" },
     ];
 
     return (
@@ -25,7 +25,7 @@ export default function Options() {
                         {options.map((opt, index) => (
                             <Link
                                 key={index}
-                                href={`/tests/start/${opt.type}`}
+                                href={`${opt.url}`}
                                 className="p-6 border rounded-xl shadow hover:bg-gray-100 transition"
                             >
                                 <h2 className="text-xl font-semibold">{opt.label}</h2>

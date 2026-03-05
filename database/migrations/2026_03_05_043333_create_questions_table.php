@@ -13,17 +13,12 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            // Texte de la question
-            $table->text('text');
-
-            // Choix multiples (JSON)
-            $table->json('choices')->nullable();
-
-            // Réponse correcte (A, B, C, D ou null pour expression écrite)
-            $table->string('answer')->nullable();
-
-            // Type de question : comprehension_ecrite, orale, expression_ecrite, etc.
-            $table->string('type');
+            $table->string('type'); // comprehension_orale, comprehension_ecrite, structure_langue
+            $table->text('question');
+            $table->json('choices');
+            $table->integer('answer'); // index 0–3
+            $table->string('audio')->nullable();
+            $table->string('image')->nullable();
 
             $table->timestamps();
         });
