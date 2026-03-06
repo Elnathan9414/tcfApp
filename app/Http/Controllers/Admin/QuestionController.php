@@ -6,25 +6,44 @@ use App\Http\Controllers\Controller;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class QuestionController extends Controller
 {
 
-    
+
     public function index()
     {
-      
-    $questions = Question::all()->map(function ($q) {
-        $q->image_url = $q->image_url;
-        $q->audio_url = $q->audio_url;
-        return $q;
-    });
+        $questions = Question::paginate(10);
+        return Inertia::render('Admin/Questions/Index', [
+    'questions' => $questions
+]);
 
-    return Inertia::render('ComprehensionOrale', [
-        'questions' => $questions,
-    ]);
-}
-    
+ }
+
+
+
+    public function comprehensionOrale()
+    {
+        $questions = Question::all()->map(function ($q) {
+            return [
+                'id' => $q->id,
+                'type' => $q->type,
+                'exercise_number' => $q->exercise_number,
+                'question' => $q->question,
+                'choices' => $q->choices,
+                'answer' => $q->answer,
+                'image' => $q->image,
+                'audio' => $q->audio,
+                'image_url' => $q->image_url,
+                'audio_url' => $q->audio_url,
+            ];
+        });
+
+        return Inertia::render('ComprehensionOrale', [
+            'questions' => $questions,
+        ]);
+    }
 
     public function store(Request $request)
     {
