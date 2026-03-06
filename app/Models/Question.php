@@ -24,6 +24,14 @@ class Question extends Model
     ];
 
 
+public function getImageUrlAttribute()
+{
+    return $this->image ? Storage::disk('s3')->url($this->image) : null;
+}
 
+public function getAudioUrlAttribute()
+{
+    return $this->audio ? Storage::disk('s3')->url($this->audio) : null;
+}
 
 }

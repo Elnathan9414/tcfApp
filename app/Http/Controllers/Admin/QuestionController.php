@@ -9,12 +9,22 @@ use Inertia\Inertia;
 
 class QuestionController extends Controller
 {
+
+    
     public function index()
     {
-        return Inertia::render('Admin/Questions/Index', [
-            'questions' => Question::orderBy('id', 'desc')->paginate(20)
-        ]);
-    }
+      
+    $questions = Question::all()->map(function ($q) {
+        $q->image_url = $q->image_url;
+        $q->audio_url = $q->audio_url;
+        return $q;
+    });
+
+    return Inertia::render('ComprehensionOrale', [
+        'questions' => $questions,
+    ]);
+}
+    
 
     public function store(Request $request)
     {
@@ -29,11 +39,11 @@ class QuestionController extends Controller
         ]);
 
         if ($request->hasFile('audio')) {
-            $data['audio'] = $request->file('audio')->store('audio/questions', 'public');
+            $data['audio'] = $request->file('audio')->store('audio/questions', 's3');
         }
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('images/questions', 'public');
+            $data['image'] = $request->file('image')->store('images/questions', 's3');
         }
 
         Question::create($data);
@@ -56,11 +66,11 @@ class QuestionController extends Controller
         ]);
 
         if ($request->hasFile('audio')) {
-            $data['audio'] = $request->file('audio')->store('audio/questions', 'public');
+            $data['audio'] = $request->file('audio')->store('audio/questions', 's3');
         }
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('images/questions', 'public');
+            $data['image'] = $request->file('image')->store('images/questions', 's3');
         }
 
         $question->update($data);

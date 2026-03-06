@@ -42,7 +42,7 @@ export default function ComprehensionOrale({ questions }) {
 {exerciseQuestions[0]?.audio && (
     <audio
         controls
-        src={`/storage/${exerciseQuestions[0].audio}`}
+        src={` src={q.audio_url} controls}`}
         className="w-full mb-6"
     />
 )}
