@@ -28,16 +28,14 @@ protected $appends = ['image_url', 'audio_url'];
 
 public function getImageUrlAttribute()
 {
-    return $this->image
-        ? Storage::disk('s3')->url($this->image)
-        : null;
+   return $this->image ? Storage::url($this->image) : null;
+
+
 }
 
 public function getAudioUrlAttribute()
 {
-    return $this->audio
-        ? Storage::disk('s3')->url($this->audio)
-        : null;
+    return $this->audio ? Storage::url($this->audio) : null;
 }
 
 }
