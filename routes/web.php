@@ -58,7 +58,13 @@ Route::middleware(['auth'])->get('/comprehension-orale', function () {
     ]);
 })->name('comprehension.orale');
 
+Route::middleware(['auth'])->group(function () {
 
+    
+    Route::get('/comprehension-ecrite', [QuestionController::class, 'comprehensionEcrite']);
+    Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']);
+
+});
 
 
 

@@ -33,10 +33,14 @@ export default function AuthenticatedLayout({ header, children }) {
                     <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                         Dashboard
                     </NavLink>
+                     <NavLink href="/methodologie" active={route().current('methodologie')}>
+                        Entrainement
+                    </NavLink>
 
                     <NavLink href="/tests/options" active={route().current('tests.options')}>
                         Tests
                     </NavLink>
+                    
 
                     <NavLink href="/methodologie" active={route().current('methodologie')}>
                         Methodologie
@@ -111,6 +115,9 @@ export default function AuthenticatedLayout({ header, children }) {
             <div className="space-y-1 pb-3 pt-2">
                 <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                     Dashboard
+                </ResponsiveNavLink>
+                <ResponsiveNavLink href="/tests/options">
+                    Entrainement
                 </ResponsiveNavLink>
 
                 <ResponsiveNavLink href="/tests/options">

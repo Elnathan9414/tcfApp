@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 export default function Options() {
     const options = [
         { label: "Compréhension orale", url: "/comprehension-orale" },
-        { label: "Structure de la langue", url: "/structure-langue" },
+        { label: "Structure de la langue", url: "/structure-de-la-langue" },
         { label: "Compréhension écrite", url: "/comprehension-ecrite" },
         { label: "Expression écrite", url: "/expression-ecrite" },
     ];
