@@ -63,25 +63,25 @@ class QuestionController extends Controller
     }
 
 
-      public function comprehensionEcrite()
-    {
-        $questions = Question::where('type', 'comprehension_ecrite')
-            ->orderBy('exercise_number')
-            ->get()
-            ->map(fn($q) => [
-                'id' => $q->id,
-                'type' => $q->type,
-                'exercise_number' => $q->exercise_number,
-                'question' => $q->question,
-                'choices' => $q->choices,
-                'answer' => $q->answer,
-                'image_url' => $q->image_url,
-            ]);
-
-        return Inertia::render('ComprehensionEcrite', [
-            'questions' => $questions
+     public function comprehensionEcrite()
+{
+    $questions = Question::where('type', 'comprehension_ecrite')
+        ->orderBy('exercise_number')
+        ->get()
+        ->map(fn($q) => [
+            'id' => $q->id,
+            'type' => $q->type,
+            'exercise_number' => $q->exercise_number,
+            'question' => $q->question,
+            'choices' => $q->choices,
+            'answer' => $q->answer,
+            'image_url' => $q->image_url, // OBLIGATOIRE
         ]);
-    }
+
+    return Inertia::render('Tests/ComprehensionEcrite', [
+        'questions' => $questions
+    ]);
+}
 
 
     public function store(Request $request)
