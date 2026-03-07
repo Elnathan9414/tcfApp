@@ -19,25 +19,24 @@ class QuestionController extends Controller
     'questions' => $questions
 ]);
 
- }
+
+    }
 
 
 
     public function comprehensionOrale()
     {
         $questions = Question::all()->map(function ($q) {
-            return [
-                'id' => $q->id,
-                'type' => $q->type,
-                'exercise_number' => $q->exercise_number,
-                'question' => $q->question,
-                'choices' => $q->choices,
-                'answer' => $q->answer,
-                'image' => $q->image,
-                'audio' => $q->audio,
-                'image_url' => $q->image_url,
-                'audio_url' => $q->audio_url,
-            ];
+           return [
+    'id' => $q->id,
+    'type' => $q->type,
+    'exercise_number' => $q->exercise_number,
+    'question' => $q->question,
+    'choices' => $q->choices,
+    'answer' => $q->answer,
+    'image_url' => $q->image_url,
+    'audio_url' => $q->audio_url,
+];
         });
 
         return Inertia::render('ComprehensionOrale', [
