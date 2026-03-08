@@ -151,8 +151,14 @@ export default function Index({ questions }) {
                             {questions.data.map((q) => (
                                 <tr key={q.id} className="border-b">
                                     <td className="p-2">{q.id}</td>
-                                    <td className="p-2">{q.type}</td>
+
+                                    {/* 👉 Type + numéro d'exercice */}
+                                    <td className="p-2">
+                                        {q.type} — <span className="font-semibold">Exercice {q.exercise_number}</span>
+                                    </td>
+
                                     <td className="p-2">{q.question}</td>
+
                                     <td className="p-2 space-x-3">
                                         <button className="text-blue-600 hover:underline">
                                             Modifier
@@ -178,8 +184,8 @@ export default function Index({ questions }) {
                                 disabled={!link.url}
                                 onClick={() => router.visit(link.url)}
                                 className={`px-3 py-1 rounded ${link.active
-                                        ? "bg-blue-600 text-white"
-                                        : "bg-gray-200"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-200"
                                     }`}
                             >
                                 <span dangerouslySetInnerHTML={{ __html: link.label }} />
