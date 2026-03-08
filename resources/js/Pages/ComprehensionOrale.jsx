@@ -1,15 +1,25 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function ComprehensionOrale({ questions }) {
 
     const [activeExercise, setActiveExercise] = useState(1);
 
+    // Stocker les réponses de l'utilisateur
+    const [answers, setAnswers] = useState({});
+
     // Filtrer les questions de l'exercice actif
     const exerciseQuestions = questions.filter(
         q => q.exercise_number === activeExercise
     );
+
+    // Fonction pour envoyer les réponses au backend
+    const handleSubmit = () => {
+        router.post('/submit-comprehension-orale', {
+            answers: answers
+        });
+    };
 
     return (
         <AuthenticatedLayout>
@@ -28,11 +38,10 @@ export default function ComprehensionOrale({ questions }) {
                             <button
                                 key={num}
                                 onClick={() => setActiveExercise(num)}
-                                className={`p-3 rounded-lg border text-center ${
-                                    activeExercise === num
+                                className={`p-3 rounded-lg border text-center ${activeExercise === num
                                         ? "bg-blue-600 text-white"
                                         : "bg-white hover:bg-gray-100"
-                                }`}
+                                    }`}
                             >
                                 Exercice {num}
                             </button>
@@ -77,7 +86,12 @@ export default function ComprehensionOrale({ questions }) {
                                                 <input
                                                     type="radio"
                                                     name={`q-${q.id}`}
-                                                    onChange={() => console.log("selected", q.id, i)}
+                                                    onChange={() =>
+                                                        setAnswers(prev => ({
+                                                            ...prev,
+                                                            [q.id]: i   // i = index du choix (0,1,2,3)
+                                                        }))
+                                                    }
                                                 />
                                                 <span>{choice}</span>
                                             </label>
@@ -89,6 +103,17 @@ export default function ComprehensionOrale({ questions }) {
                         </div>
                     ))}
                 </div>
+
+                {/* BOUTON TERMINER LE TEST */}
+                <div className="text-center mt-10">
+                    <button
+                        onClick={handleSubmit}
+                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        Terminer le test
+                    </button>
+                </div>
+
             </div>
         </AuthenticatedLayout>
     );

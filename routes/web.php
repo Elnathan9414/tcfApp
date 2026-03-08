@@ -31,14 +31,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-     Route::get('/tests', function () {
+    Route::get('/tests', function () {
         return Inertia::render('Tests/Index');
     });
 
     Route::get('/tests/start', function () {
         return Inertia::render('Tests/Start');
     });
-      Route::get('/tests/options', function () {
+    Route::get('/tests/options', function () {
         return Inertia::render('Tests/Options');
     });
 
@@ -50,35 +50,35 @@ Route::middleware('auth')->group(function () {
 
 
 
-Route::middleware(['auth'])->get('/comprehension-orale', function () {
-    return Inertia::render('ComprehensionOrale', [
-        'questions' => Question::where('type', 'comprehension_orale')
-            ->orderBy('exercise_number')
-            ->get()
-    ]);
-})->name('comprehension.orale');
+    
+
+    Route::middleware(['auth'])->group(function () {
+
+        // Pages des tests
+        Route::get('/comprehension-orale', [QuestionController::class, 'comprehensionOrale']);
+        Route::get('/comprehension-ecrite', [QuestionController::class, 'comprehensionEcrite']);
+        Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']);
+    });
 
 Route::middleware(['auth'])->group(function () {
 
-    
-    Route::get('/comprehension-ecrite', [QuestionController::class, 'comprehensionEcrite']);
-    Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']);
+    // Soumission des tests
+    Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
+    Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']);
+    Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']);
 
 });
 
+    Route::middleware(['auth'])->prefix('admin')->group(function () {
+        Route::get('/questions', [QuestionController::class, 'index'])->name('admin.questions.index');
+        Route::post('/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
+        Route::put('/questions/{id}', [QuestionController::class, 'update'])->name('admin.questions.update');
+        Route::delete('/questions/{id}', [QuestionController::class, 'destroy'])->name('admin.questions.destroy');
+    });
 
-
-Route::middleware(['auth'])->prefix('admin')->group(function () {
-    Route::get('/questions', [QuestionController::class, 'index'])->name('admin.questions.index');
-    Route::post('/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
-    Route::put('/questions/{id}', [QuestionController::class, 'update'])->name('admin.questions.update');
-    Route::delete('/questions/{id}', [QuestionController::class, 'destroy'])->name('admin.questions.destroy');
-});
-
-Route::middleware('auth')->post('/tests/summary', [TestController::class, 'summary'])
-    ->name('tests.summary');
-
+    Route::middleware('auth')->post('/tests/summary', [TestController::class, 'summary'])
+        ->name('tests.summary');
 });
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

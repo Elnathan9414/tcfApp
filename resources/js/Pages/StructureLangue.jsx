@@ -1,15 +1,25 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function ComprehensionOrale({ questions }) {
+export default function StructureDeLaLangue({ questions }) {
 
     const [activeExercise, setActiveExercise] = useState(1);
+
+    // Stocker les réponses de l'utilisateur
+    const [answers, setAnswers] = useState({});
 
     // Filtrer les questions de l'exercice actif
     const exerciseQuestions = questions.filter(
         q => q.exercise_number === activeExercise
     );
+
+    // Envoyer les réponses au backend
+    const handleSubmit = () => {
+        router.post('/submit-structure-langue', {
+            answers: answers
+        });
+    };
 
     return (
         <AuthenticatedLayout>
@@ -17,10 +27,10 @@ export default function ComprehensionOrale({ questions }) {
 
             <div className="p-10 space-y-10">
                 <h1 className="text-3xl font-bold text-center text-gray-200">
-                   Stucture de la langue
+                    Structure de la langue
                 </h1>
 
-                {/* Boutons des 20 exercices */}
+                {/* Boutons des exercices */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {[...Array(20)].map((_, i) => {
                         const num = i + 1;
@@ -40,55 +50,45 @@ export default function ComprehensionOrale({ questions }) {
                     })}
                 </div>
 
-                {/* AUDIO UNIQUE POUR TOUT L’EXERCICE */}
-                {exerciseQuestions[0]?.audio_url && (
-                    <audio
-                        controls
-                        src={exerciseQuestions[0].audio_url}
-                        className="w-full mb-6"
-                    />
-                )}
-
-                {/* SECTIONS PAR QUESTION */}
+                {/* Questions */}
                 <div className="space-y-10">
                     {exerciseQuestions.map((q) => (
                         <div key={q.id} className="bg-white p-6 rounded-xl shadow space-y-6">
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                            <p className="font-medium">{q.question}</p>
 
-                                {/* IMAGE */}
-                                <div>
-                                    {q.image_url && (
-                                        <img
-                                            src={q.image_url}
-                                            alt="Illustration"
-                                            className="rounded-lg w-full max-w-md border shadow"
+                            <div className="space-y-2">
+                                {q.choices.map((choice, i) => (
+                                    <label key={i} className="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            name={`q-${q.id}`}
+                                            onChange={() =>
+                                                setAnswers(prev => ({
+                                                    ...prev,
+                                                    [q.id]: i   // index du choix
+                                                }))
+                                            }
                                         />
-                                    )}
-                                </div>
-
-                                {/* QUESTION + CHOIX */}
-                                <div className="space-y-4">
-                                    <p className="font-medium">{q.question}</p>
-
-                                    <div className="space-y-2">
-                                        {q.choices.map((choice, i) => (
-                                            <label key={i} className="flex items-center space-x-2">
-                                                <input
-                                                    type="radio"
-                                                    name={`q-${q.id}`}
-                                                    onChange={() => console.log("selected", q.id, i)}
-                                                />
-                                                <span>{choice}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-
+                                        <span>{choice}</span>
+                                    </label>
+                                ))}
                             </div>
+
                         </div>
                     ))}
                 </div>
+
+                {/* Bouton Terminer */}
+                <div className="text-center mt-10">
+                    <button
+                        onClick={handleSubmit}
+                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        Terminer le test
+                    </button>
+                </div>
+
             </div>
         </AuthenticatedLayout>
     );
