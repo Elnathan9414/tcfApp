@@ -8,6 +8,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Question;
 use App\Http\Controllers\Admin\QuestionController;
+use App\Http\Controllers\Admin\UserController;
 
 
 Route::get('/', function () {
@@ -80,5 +81,16 @@ Route::middleware(['auth'])->group(function () {
         ->name('tests.summary');
 });
 
+// gestion des roles 
+//admin: accès à toutes les fonctionnalités, y compris la gestion des utilisateurs et des questions
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('admin/users', UserController::class);
+    Route::resource('admin/questions', QuestionController::class);
+});
+//contributor: accès à la gestion des questions, mais pas à la gestion des utilisateurs
+Route::middleware(['auth', 'role:contributor'])->group(function () {
+    Route::resource('admin/questions', QuestionController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update']);
+});
 
 require __DIR__ . '/auth.php';

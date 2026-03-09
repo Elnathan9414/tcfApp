@@ -14,158 +14,238 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
+    {
+        user.role === 'admin' && (
+            <Link href="/admin/users">Gestion des utilisateurs</Link>
+        )
+    }
+
+    {
+        ['admin', 'contributor'].includes(user.role) && (
+            <Link href="/admin/questions">Gestion des questions</Link>
+        )
+    }
+
+    {
+        user.role === 'student' && (
+            <Link href="/tests/options">Passer un test</Link>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-          <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 justify-between">
+            <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 justify-between">
 
-            {/* Logo + Menu Desktop */}
-            <div className="flex">
-                <div className="flex shrink-0 items-center">
-                    <Link href="/">
-                        <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </Link>
-                </div>
+                        {/* Logo + Menu Desktop */}
+                        <div className="flex">
+                            <div className="flex shrink-0 items-center">
+                                <Link href="/">
+                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                                </Link>
+                            </div>
 
-                {/* Desktop Menu */}
-                <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                        Dashboard
-                    </NavLink>
-                     <NavLink href="/methodologie" active={route().current('methodologie')}>
-                        Entrainement
-                    </NavLink>
+                            {/* Desktop Menu */}
 
-                    <NavLink href="/tests/options" active={route().current('tests.options')}>
-                        Tests
-                    </NavLink>
-                    
 
-                    <NavLink href="/methodologie" active={route().current('methodologie')}>
-                        Methodologie
-                    </NavLink>
+                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                <NavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                    Dashboard
+                                </NavLink>
 
-                    <NavLink href="/tests/options" active={route().current('tests.options')}>
-                        Sujets récents
-                    </NavLink>
+                                <NavLink href="/methodologie" active={route().current('methodologie')}>
+                                    Entrainement
+                                </NavLink>
 
-                    <a
-                        href="https://apprendre.tv5monde.com/fr/tcf/simulation-du-tcf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        Examen blanc
-                    </a>
-                </div>
-            </div>
+                                <NavLink href="/tests/options" active={route().current('tests.options')}>
+                                    Tests
+                                </NavLink>
 
-            {/* Desktop User Dropdown */}
-            <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                <Dropdown>
-                    <Dropdown.Trigger>
-                        <button
-                            type="button"
-                            className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
-                        >
-                            {user.name}
-                            <svg className="ms-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    fillRule="evenodd"
-                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </button>
-                    </Dropdown.Trigger>
+                                <NavLink href="/methodologie" active={route().current('methodologie')}>
+                                    Methodologie
+                                </NavLink>
 
-                    <Dropdown.Content>
-                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
-                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                            Log Out
-                        </Dropdown.Link>
-                    </Dropdown.Content>
-                </Dropdown>
-            </div>
+                                <NavLink href="/tests/options" active={route().current('tests.options')}>
+                                    Sujets récents
+                                </NavLink>
 
-            {/* Mobile Hamburger */}
-            <div className="-me-2 flex items-center sm:hidden">
-                <button
-                    onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
-                    className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-900"
-                >
-                    {showingNavigationDropdown ? (
-                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    ) : (
-                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    )}
-                </button>
-            </div>
-        </div>
-    </div>
+                                <a
+                                    href="https://apprendre.tv5monde.com/fr/tcf/simulation-du-tcf"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Examen blanc
+                                </a>
 
-    {/* Mobile Menu */}
-    {showingNavigationDropdown && (
-        <div className="sm:hidden">
-            <div className="space-y-1 pb-3 pt-2">
-                <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                    Dashboard
-                </ResponsiveNavLink>
-                <ResponsiveNavLink href="/tests/options">
-                    Entrainement
-                </ResponsiveNavLink>
+                                {/* ----------------------------- */}
+                                {/*   MENUS SPÉCIFIQUES PAR RÔLE  */}
+                                {/* ----------------------------- */}
 
-                <ResponsiveNavLink href="/tests/options">
-                    Tests
-                </ResponsiveNavLink>
+                                {/* ADMIN */}
+                                {user.role === 'admin' && (
+                                    <>
+                                        <NavLink href="/admin/questions" active={route().current('admin.questions.index')}>
+                                            Gestion des questions
+                                        </NavLink>
 
-                <ResponsiveNavLink href="/methodologie">
-                    Methodologie
-                </ResponsiveNavLink>
+                                        <NavLink href="/admin/users" active={route().current('admin.users.index')}>
+                                            Gestion des utilisateurs
+                                        </NavLink>
+                                    </>
+                                )}
 
-                <ResponsiveNavLink href="/tests/options">
-                    Sujets récents
-                </ResponsiveNavLink>
+                                {/* CONTRIBUTOR */}
+                                {user.role === 'contributor' && (
+                                    <>
+                                        <NavLink href="/admin/questions" active={route().current('admin.questions.index')}>
+                                            Gestion des questions
+                                        </NavLink>
+                                    </>
+                                )}
 
-                <a
-                    href="https://apprendre.tv5monde.com/fr/tcf/simulation-du-tcf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
-                >
-                    Examen blanc
-                </a>
-            </div>
+                                {/* STUDENT → aucun menu admin */}
+                            </div>
+                        </div>
 
-            {/* Mobile User Section */}
-            <div className="border-t border-gray-200 pb-1 pt-4 dark:border-gray-600">
-                <div className="px-4">
-                    <div className="text-base font-medium text-gray-800 dark:text-gray-200">
-                        {user.name}
-                    </div>
-                    <div className="text-sm font-medium text-gray-500">
-                        {user.email}
+
+                        {/* Desktop User Dropdown */}
+                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                                    >
+                                        {user.name}
+                                        <svg className="ms-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </button>
+                                </Dropdown.Trigger>
+
+                                <Dropdown.Content>
+                                    <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                    <Dropdown.Link href={route('logout')} method="post" as="button">
+                                        Log Out
+                                    </Dropdown.Link>
+                                </Dropdown.Content>
+                            </Dropdown>
+                        </div>
+
+                        {/* Mobile Hamburger */}
+                        <div className="-me-2 flex items-center sm:hidden">
+                            <button
+                                onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
+                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-900"
+                            >
+                                {showingNavigationDropdown ? (
+                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
+                {showingNavigationDropdown && (
+                    <div className="sm:hidden">
+                        <div className="space-y-1 pb-3 pt-2">
 
-                <div className="mt-3 space-y-1">
-                    <ResponsiveNavLink href={route('profile.edit')}>
-                        Profile
-                    </ResponsiveNavLink>
+                            {/* MENU COMMUN À TOUS */}
+                            <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
+                                Dashboard
+                            </ResponsiveNavLink>
 
-                    <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                        Log Out
-                    </ResponsiveNavLink>
-                </div>
-            </div>
-        </div>
-    )}
-</nav>
+                            <ResponsiveNavLink href="/methodologie">
+                                Entrainement
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink href="/tests/options">
+                                Tests
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink href="/methodologie">
+                                Methodologie
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink href="/tests/options">
+                                Sujets récents
+                            </ResponsiveNavLink>
+
+                            <a
+                                href="https://apprendre.tv5monde.com/fr/tcf/simulation-du-tcf"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
+                            >
+                                Examen blanc
+                            </a>
+
+                            {/* ----------------------------- */}
+                            {/*   MENUS SPÉCIFIQUES PAR RÔLE  */}
+                            {/* ----------------------------- */}
+
+                            {/* ADMIN */}
+                            {user.role === 'admin' && (
+                                <>
+                                    <ResponsiveNavLink href="/admin/questions">
+                                        Gestion des questions
+                                    </ResponsiveNavLink>
+
+                                    <ResponsiveNavLink href="/admin/users">
+                                        Gestion des utilisateurs
+                                    </ResponsiveNavLink>
+                                </>
+                            )}
+
+                            {/* CONTRIBUTOR */}
+                            {user.role === 'contributor' && (
+                                <>
+                                    <ResponsiveNavLink href="/admin/questions">
+                                        Gestion des questions
+                                    </ResponsiveNavLink>
+                                </>
+                            )}
+
+                            {/* STUDENT → aucun lien admin */}
+                        </div>
+
+                        {/* Mobile User Section */}
+                        <div className="border-t border-gray-200 pb-1 pt-4 dark:border-gray-600">
+                            <div className="px-4">
+                                <div className="text-base font-medium text-gray-800 dark:text-gray-200">
+                                    {user.name}
+                                </div>
+                                <div className="text-sm font-medium text-gray-500">
+                                    {user.email}
+                                </div>
+                            </div>
+
+                            <div className="mt-3 space-y-1">
+                                <ResponsiveNavLink href={route('profile.edit')}>
+                                    Profile
+                                </ResponsiveNavLink>
+
+                                <ResponsiveNavLink method="post" href={route('logout')} as="button">
+                                    Log Out
+                                </ResponsiveNavLink>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+            </nav>
 
             {header && (
                 <header className="bg-white shadow dark:bg-gray-800">
