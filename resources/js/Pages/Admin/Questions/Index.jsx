@@ -1,9 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Index({ questions }) {
 
-    const { data, setData, post, reset, errors } = useForm({
+    // Formulaire partagé (création + édition)
+    const { data, setData, post, put, reset, errors } = useForm({
         type: '',
         question: '',
         choices: ['', '', '', ''],
@@ -13,13 +15,50 @@ export default function Index({ questions }) {
         image: null,
     });
 
+    // ID de la question en cours d'édition
+    const [editingId, setEditingId] = useState(null);
+
+    // Soumission du formulaire
     const submit = (e) => {
         e.preventDefault();
-        post(route('admin.questions.store'), {
-            onSuccess: () => reset()
+
+        if (editingId) {
+            // MODE ÉDITION
+            put(route('admin.questions.update', editingId), {
+                onSuccess: () => {
+                    reset();
+                    setEditingId(null);
+                }
+            });
+        } else {
+            // MODE AJOUT
+            post(route('admin.questions.store'), {
+                onSuccess: () => reset()
+            });
+        }
+    };
+
+    // Remplir le formulaire pour modifier
+    const startEdit = (q) => {
+        setEditingId(q.id);
+        setData({
+            type: q.type,
+            question: q.question,
+            choices: q.choices || ['', '', '', ''],
+            exercise_number: q.exercise_number,
+            answer: q.answer,
+            audio: null,
+            image: null,
         });
     };
 
+    // Annuler la modification
+    const cancelEdit = () => {
+        reset();
+        setEditingId(null);
+    };
+
+    // Supprimer une question
     const deleteQuestion = (id) => {
         if (confirm("Supprimer cette question ?")) {
             router.delete(route('admin.questions.destroy', id));
@@ -32,14 +71,17 @@ export default function Index({ questions }) {
 
                 <h1 className="text-3xl font-bold text-gray-200">Gestion des questions</h1>
 
-                {/* Formulaire d'ajout */}
+                {/* FORMULAIRE AJOUT / MODIFICATION */}
                 <form
                     onSubmit={submit}
                     className="bg-white p-6 rounded-xl shadow space-y-4"
                     encType="multipart/form-data"
                 >
-                    <h2 className="text-xl font-semibold">Ajouter une question</h2>
+                    <h2 className="text-xl font-semibold">
+                        {editingId ? "Modifier la question" : "Ajouter une question"}
+                    </h2>
 
+                    {/* TYPE */}
                     <div>
                         <label className="block font-medium">Type</label>
                         <select
@@ -54,6 +96,8 @@ export default function Index({ questions }) {
                         </select>
                         {errors.type && <p className="text-red-600">{errors.type}</p>}
                     </div>
+
+                    {/* EXERCICE */}
                     <div>
                         <label className="block font-medium">Numéro de l'exercice</label>
                         <input
@@ -64,6 +108,7 @@ export default function Index({ questions }) {
                         />
                     </div>
 
+                    {/* QUESTION */}
                     <div>
                         <label className="block font-medium">Question</label>
                         <textarea
@@ -74,6 +119,7 @@ export default function Index({ questions }) {
                         {errors.question && <p className="text-red-600">{errors.question}</p>}
                     </div>
 
+                    {/* CHOIX */}
                     <div className="grid grid-cols-2 gap-4">
                         {data.choices.map((choice, index) => (
                             <div key={index}>
@@ -90,8 +136,8 @@ export default function Index({ questions }) {
                             </div>
                         ))}
                     </div>
-                    {errors.choices && <p className="text-red-600">{errors.choices}</p>}
 
+                    {/* BONNE RÉPONSE */}
                     <div>
                         <label className="block font-medium">Bonne réponse (0-3)</label>
                         <input
@@ -105,6 +151,7 @@ export default function Index({ questions }) {
                         {errors.answer && <p className="text-red-600">{errors.answer}</p>}
                     </div>
 
+                    {/* AUDIO */}
                     <div>
                         <label className="block font-medium">Audio (optionnel)</label>
                         <input
@@ -112,9 +159,9 @@ export default function Index({ questions }) {
                             accept="audio/*"
                             onChange={(e) => setData('audio', e.target.files[0])}
                         />
-                        {errors.audio && <p className="text-red-600">{errors.audio}</p>}
                     </div>
 
+                    {/* IMAGE */}
                     <div>
                         <label className="block font-medium">Image (optionnel)</label>
                         <input
@@ -122,18 +169,30 @@ export default function Index({ questions }) {
                             accept="image/*"
                             onChange={(e) => setData('image', e.target.files[0])}
                         />
-                        {errors.image && <p className="text-red-600">{errors.image}</p>}
                     </div>
 
-                    <button
-                        type="submit"
-                        className="bg-blue-600 text-white px-4 py-2 rounded"
-                    >
-                        Ajouter
-                    </button>
+                    {/* BOUTONS */}
+                    <div className="flex space-x-4">
+                        <button
+                            type="submit"
+                            className="bg-blue-600 text-white px-4 py-2 rounded"
+                        >
+                            {editingId ? "Mettre à jour" : "Ajouter"}
+                        </button>
+
+                        {editingId && (
+                            <button
+                                type="button"
+                                onClick={cancelEdit}
+                                className="bg-gray-400 text-white px-4 py-2 rounded"
+                            >
+                                Annuler
+                            </button>
+                        )}
+                    </div>
                 </form>
 
-                {/* Tableau des questions */}
+                {/* TABLEAU DES QUESTIONS */}
                 <div className="bg-white p-6 rounded-xl shadow">
                     <h2 className="text-xl font-semibold mb-4">Liste des questions</h2>
 
@@ -141,7 +200,7 @@ export default function Index({ questions }) {
                         <thead>
                             <tr className="border-b">
                                 <th className="p-2">ID</th>
-                                <th className="p-2">Type</th>
+                                <th className="p-2">Type / Exercice</th>
                                 <th className="p-2">Question</th>
                                 <th className="p-2">Actions</th>
                             </tr>
@@ -152,15 +211,17 @@ export default function Index({ questions }) {
                                 <tr key={q.id} className="border-b">
                                     <td className="p-2">{q.id}</td>
 
-                                    {/* 👉 Type + numéro d'exercice */}
                                     <td className="p-2">
-                                        {q.type} — <span className="font-semibold">Exercice {q.exercise_number}</span>
+                                        {q.type} — <strong>Exercice {q.exercise_number}</strong>
                                     </td>
 
                                     <td className="p-2">{q.question}</td>
 
                                     <td className="p-2 space-x-3">
-                                        <button className="text-blue-600 hover:underline">
+                                        <button
+                                            className="text-blue-600 hover:underline"
+                                            onClick={() => startEdit(q)}
+                                        >
                                             Modifier
                                         </button>
 
@@ -176,17 +237,18 @@ export default function Index({ questions }) {
                         </tbody>
                     </table>
 
-                    {/* Pagination */}
+                    {/* PAGINATION */}
                     <div className="mt-4 flex space-x-2">
                         {questions.links.map((link, index) => (
                             <button
                                 key={index}
                                 disabled={!link.url}
                                 onClick={() => router.visit(link.url)}
-                                className={`px-3 py-1 rounded ${link.active
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-gray-200"
-                                    }`}
+                                className={`px-3 py-1 rounded ${
+                                    link.active
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-gray-200"
+                                }`}
                             >
                                 <span dangerouslySetInnerHTML={{ __html: link.label }} />
                             </button>
