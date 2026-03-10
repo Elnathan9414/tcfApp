@@ -9,12 +9,16 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role): Response
-    {
-        if (!Auth::check() || Auth::user()->role !== $role) {
-            abort(403, 'Unauthorized');
-        }
+ public function handle($request, Closure $next, ...$roles)
+{
+    $user = $request->user();
 
-        return $next($request);
+    if (!$user || !in_array($user->role, $roles)) {
+        abort(403);
     }
+
+    return $next($request);
+}
+
+
 }
