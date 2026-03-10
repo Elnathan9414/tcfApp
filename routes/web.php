@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
         ->name('tests.summary');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN PANEL
@@ -104,15 +105,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     /*
     |--------------------------------------------------
-    | ADMIN ONLY
+    | ADMIN SEULEMENT
     |--------------------------------------------------
     */
 
     Route::middleware('role:admin')->group(function () {
-
-        // Gestion des utilisateurs
         Route::resource('users', UserController::class);
-
     });
 
     /*
@@ -122,12 +120,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     */
 
     Route::middleware('role:admin,contributor')->group(function () {
-
-        // Gestion des questions
         Route::resource('questions', QuestionController::class);
-
     });
 
 });
-
-require __DIR__ . '/auth.php';
