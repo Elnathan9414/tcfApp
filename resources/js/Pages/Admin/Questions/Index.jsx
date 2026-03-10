@@ -20,23 +20,21 @@ export default function Index({ questions }) {
 
     // Soumission du formulaire
     const submit = (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (editingId) {
-            // MODE ÉDITION
-            put(route('admin.questions.update', editingId), {
-                onSuccess: () => {
-                    reset();
-                    setEditingId(null);
-                }
-            });
-        } else {
-            // MODE AJOUT
-            post(route('admin.questions.store'), {
-                onSuccess: () => reset()
-            });
-        }
-    };
+    if (editingId) {
+        put(route('questions.update', editingId), {
+            onSuccess: () => {
+                reset();
+                setEditingId(null);
+            }
+        });
+    } else {
+        post(route('questions.store'), {
+            onSuccess: () => reset()
+        });
+    }
+};
 
     // Remplir le formulaire pour modifier
     const startEdit = (q) => {
