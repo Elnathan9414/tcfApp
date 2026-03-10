@@ -27,7 +27,7 @@ export default function Welcome({ auth }) {
                                 <div className="-mx-3 flex flex-1 justify-end">
                                     {auth.user ? (
                                         <Link
-                                            href={route('dashboard')}
+                                            href={route('student.dashboard')}
                                             className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
                                         >
                                             Dashboard
@@ -73,7 +73,7 @@ export default function Welcome({ auth }) {
                             <div className="sm:hidden py-4 space-y-2 border-t border-gray-200 dark:border-gray-700">
                                 {auth.user ? (
                                     <Link
-                                        href={route('dashboard')}
+                                        href={route('student.dashboard')}
                                         className="block py-2 text-blue-600 dark:text-blue-400 font-medium"
                                         onClick={() => setIsMenuOpen(false)}
                                     >
@@ -132,7 +132,7 @@ export default function Welcome({ auth }) {
                                 </>
                             ) : (
                                 <Link
-                                    href={route('dashboard')}
+                                    href={route('student.dashboard')}
                                     className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl"
                                 >
                                     Accéder à mon tableau de bord
@@ -428,7 +428,7 @@ export default function Welcome({ auth }) {
                             </Link>
                         ) : (
                             <Link
-                                href={route('dashboard')}
+                                href={route('student.dashboard')}
                                 className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition inline-block shadow-lg"
                             >
                                 Accéder à mon espace
