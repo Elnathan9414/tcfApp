@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\ProfileController;
@@ -45,9 +44,7 @@ Route::middleware(['auth', 'verified'])
 Route::middleware('auth')->group(function () {
 
     /*
-    |--------------------------------------------------
     | PROFILE
-    |--------------------------------------------------
     */
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -55,9 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     /*
-    |--------------------------------------------------
-    | TESTS PAGES
-    |--------------------------------------------------
+    | TEST PAGES
     */
 
     Route::get('/tests', fn () => Inertia::render('Tests/Index'));
@@ -71,9 +66,7 @@ Route::middleware('auth')->group(function () {
     });
 
     /*
-    |--------------------------------------------------
-    | TESTS QUESTIONS
-    |--------------------------------------------------
+    | TEST QUESTIONS
     */
 
     Route::get('/comprehension-orale', [QuestionController::class, 'comprehensionOrale']);
@@ -81,9 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']);
 
     /*
-    |--------------------------------------------------
-    | TESTS SUBMISSIONS
-    |--------------------------------------------------
+    | TEST SUBMISSIONS
     */
 
     Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
@@ -92,35 +83,27 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/tests/summary', [TestController::class, 'summary'])
         ->name('tests.summary');
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| ADMIN PANEL
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     /*
-    |--------------------------------------------------
-    | ADMIN SEULEMENT
-    |--------------------------------------------------
+    |--------------------------------------------------------------------------
+    | ADMIN PANEL
+    |--------------------------------------------------------------------------
     */
 
-    Route::middleware('role:admin')->group(function () {
-        Route::resource('users', UserController::class);
-    });
+    Route::prefix('admin')->group(function () {
 
-    /*
-    |--------------------------------------------------
-    | ADMIN + CONTRIBUTORS
-    |--------------------------------------------------
-    */
+        // ADMIN uniquement
+        Route::middleware('role:admin')->group(function () {
+            Route::resource('users', UserController::class);
+        });
 
-    Route::middleware('role:admin,contributor')->group(function () {
-        Route::resource('questions', QuestionController::class);
+        // ADMIN + CONTRIBUTORS
+        Route::middleware('role:admin,contributor')->group(function () {
+            Route::resource('questions', QuestionController::class);
+        });
+
     });
 
 });
+
+require __DIR__.'/auth.php';
