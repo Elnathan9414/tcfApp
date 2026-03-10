@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('test_results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('type'); // orale, ecrite, etc.
-            $table->integer('score')->nullable();
-            $table->integer('total')->nullable();
-            $table->json('answers'); // toutes les réponses
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('test_type'); // comprehension_orale, comprehension_ecrite, structure_langue
+            $table->integer('score');
+            $table->integer('total');
+            $table->integer('percentage');
+            $table->string('level'); // A1 → C2
+
 
             $table->timestamps();
         });

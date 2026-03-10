@@ -6,9 +6,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\TestController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TestResultController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +32,14 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])
-    ->get('/dashboard', [DashboardController::class, 'index'])
-    ->name('dashboard');
+Route::middleware(['auth'])
+    ->group(function () {
+        Route::get('/student/dashboard', [DashboardController::class, 'student'])
+            ->name('student.dashboard');
+
+        Route::post('/results', [TestResultController::class, 'store'])
+            ->name('results.store');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -77,13 +83,32 @@ Route::middleware('auth')->group(function () {
     | TEST SUBMISSIONS
     */
 
-    Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
-    Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']);
-    Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']);
+    // Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
+    // Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']);
+    // Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']);
 
     Route::post('/tests/summary', [TestController::class, 'summary'])
         ->name('tests.summary');
 
+
+
+    /*
+        TEST RESULTS
+    */
+
+    Route::middleware(['auth'])->group(function () {
+
+    // Enregistrement des résultats
+    Route::post('/results/comprehension-orale', [TestResultController::class, 'submitComprehensionOrale'])
+        ->name('results.comprehension_orale');
+
+    Route::post('/results/comprehension-ecrite', [TestResultController::class, 'submitComprehensionEcrite'])
+        ->name('results.comprehension_ecrite');
+
+    Route::post('/results/structure-langue', [TestResultController::class, 'submitStructureLangue'])
+        ->name('results.structure_langue');
+});
+        
     /*
     |--------------------------------------------------------------------------
     | ADMIN PANEL

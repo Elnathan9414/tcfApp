@@ -9,17 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 class TestResult extends Model
 {
     use HasFactory;
-     protected $fillable = [
+    protected $fillable = [
         'user_id',
-        'type',
+        'test_type',
         'score',
         'total',
-        'answers',
+        'percentage',
+        'level',
     ];
 
-    protected $casts = [
-        'answers' => 'array',
-    ];
+
 
 
 }
