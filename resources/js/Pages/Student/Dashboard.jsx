@@ -4,7 +4,15 @@ import StatsCards from '@/Components/StatsCards';
 import ProgressionChart from '@/Components/ProgressChart';
 import SkillsChart from '@/Components/SkillsChart';
 
+
 export default function Dashboard({ results, stats }) {
+
+
+    const evolutionData = results.map(r => ({
+    date: new Date(r.created_at).toLocaleDateString(),
+    percentage: r.percentage,
+    test_type: r.test_type,
+}));
     return (
         <AuthenticatedLayout>
             <Head title="Tableau de bord" />

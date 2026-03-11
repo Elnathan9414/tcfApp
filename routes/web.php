@@ -71,6 +71,15 @@ Route::middleware('auth')->group(function () {
         ]);
     });
 
+    /*METHODOLOGIE*/
+
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/methodologie', function () {
+        return Inertia::render('Methodologie');
+    })->name('methodologie');
+});
+
+
     /*
     | TEST QUESTIONS
     */
@@ -83,9 +92,9 @@ Route::middleware('auth')->group(function () {
     | TEST SUBMISSIONS
     */
 
-    // Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
-    // Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']);
-    // Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']);
+    Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
+     Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']);
+    Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']);
 
     Route::post('/tests/summary', [TestController::class, 'summary'])
         ->name('tests.summary');

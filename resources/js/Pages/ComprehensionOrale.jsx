@@ -16,10 +16,14 @@ export default function ComprehensionOrale({ questions }) {
 
     // Fonction pour envoyer les réponses au backend
     const handleSubmit = () => {
-        router.post('/submit-comprehension-orale', {
-            answers: answers
-        });
-    };
+    router.post('/submit-comprehension-orale', {
+        answers: answers
+    }, {
+        onSuccess: () => {
+            console.log("Summary affichée !");
+        }
+    });
+};
 
     return (
         <AuthenticatedLayout>
