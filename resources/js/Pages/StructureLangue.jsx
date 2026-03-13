@@ -14,12 +14,16 @@ export default function StructureDeLaLangue({ questions }) {
         q => q.exercise_number === activeExercise
     );
 
-    // Envoyer les réponses au backend
     const handleSubmit = () => {
-        router.post('/submit-structure-langue', {
-            answers: answers
-        });
-    };
+    router.post('/submit-structure-langue', {
+        answers: answers,
+        question_ids: exerciseQuestions.map(q => q.id)
+    }, {
+        onSuccess: () => {
+            console.log("Summary affichée !");
+        }
+    });
+};
 
     return (
         <AuthenticatedLayout>

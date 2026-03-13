@@ -17,7 +17,8 @@ export default function ComprehensionOrale({ questions }) {
     // Fonction pour envoyer les réponses au backend
     const handleSubmit = () => {
     router.post('/submit-comprehension-orale', {
-        answers: answers
+        answers: answers,
+        question_ids: exerciseQuestions.map(q => q.id)
     }, {
         onSuccess: () => {
             console.log("Summary affichée !");

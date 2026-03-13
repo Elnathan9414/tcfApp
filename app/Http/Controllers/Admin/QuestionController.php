@@ -89,13 +89,12 @@ class QuestionController extends Controller
 }
 public function submitComprehensionOrale(Request $request)
 {
-    // 1. Récupérer les réponses envoyées par React
     $answers = $request->answers;
+    $questionIds = $request->question_ids;
 
-    // 2. Récupérer les questions du test
-    $questions = Question::where('type', 'comprehension_orale')->get();
+    // Charger uniquement les questions de l'exercice actif
+    $questions = Question::whereIn('id', $questionIds)->get();
 
-    // 3. Calcul du score
     $correct = 0;
 
     foreach ($questions as $q) {
@@ -104,14 +103,11 @@ public function submitComprehensionOrale(Request $request)
         }
     }
 
-    // 4. Calcul du total et du pourcentage
     $total = $questions->count();
     $percentage = ($correct / $total) * 100;
 
-    // 5. Déterminer le niveau CECRL
     $level = $this->convertToCECRL($percentage);
 
-    // ⭐ 6. ENREGISTRER LE RÉSULTAT DANS LA BASE
     TestResult::create([
         'user_id' => Auth::id(),
         'test_type' => 'comprehension_orale',
@@ -121,7 +117,6 @@ public function submitComprehensionOrale(Request $request)
         'level' => $level,
     ]);
 
-    // 7. Retourner la page Summary
     return Inertia::render('Tests/Summary', [
         'correct' => $correct,
         'total' => $total,
@@ -133,17 +128,15 @@ public function submitComprehensionOrale(Request $request)
 
 public function submitStructureLangue(Request $request)
 {
-    // 1. Récupérer les réponses envoyées par React
     $answers = $request->answers;
+    $questionIds = $request->question_ids;
 
-    // 2. Récupérer les questions du test
-    $questions = Question::where('type', 'structure_langue')->get();
+    $questions = Question::whereIn('id', $questionIds)->get();
 
-    // 3. Calcul du score
     $correct = 0;
 
     foreach ($questions as $q) {
-        if (isset($answers[$q->id]) && $answers[$q->id] === $q->answer) {
+        if (isset($answers[$q->id]) && intval($answers[$q->id]) === intval($q->answer)) {
             $correct++;
         }
     }
@@ -151,43 +144,37 @@ public function submitStructureLangue(Request $request)
     $total = $questions->count();
     $percentage = ($correct / $total) * 100;
 
-    // 4. Déterminer le niveau CECRL
     $level = $this->convertToCECRL($percentage);
 
-        // 5. ENREGISTRER LE RÉSULTAT DANS LA BASE
-        TestResult::create([
-            'user_id' => Auth::id(),
-            'test_type' => 'structure_langue',
-            'score' => $correct,
-            'total' => $total,
-            'percentage' => round($percentage),
-            'level' => $level,
-        ]);
+    TestResult::create([
+        'user_id' => Auth::id(),
+        'test_type' => 'structure_langue',
+        'score' => $correct,
+        'total' => $total,
+        'percentage' => round($percentage),
+        'level' => $level,
+    ]);
 
-    // 5. Retourner la page Summary
-   return Inertia::render('Tests/Summary', [
-    'correct' => $correct,
-    'total' => $total,
-    'percentage' => round($percentage),
-    'level' => $level,
-    'testType' => 'structure-langue',
-]);
+    return Inertia::render('Tests/Summary', [
+        'correct' => $correct,
+        'total' => $total,
+        'percentage' => round($percentage),
+        'level' => $level,
+        'testType' => 'structure-langue',
+    ]);
 }
-
 
 public function submitComprehensionEcrite(Request $request)
 {
-    // 1. Récupérer les réponses envoyées par React
     $answers = $request->answers;
+    $questionIds = $request->question_ids;
 
-    // 2. Récupérer les questions du test
-    $questions = Question::where('type', 'comprehension_ecrite')->get();
+    $questions = Question::whereIn('id', $questionIds)->get();
 
-    // 3. Calcul du score
     $correct = 0;
 
     foreach ($questions as $q) {
-        if (isset($answers[$q->id]) && $answers[$q->id] === $q->answer) {
+        if (isset($answers[$q->id]) && intval($answers[$q->id]) === intval($q->answer)) {
             $correct++;
         }
     }
@@ -195,29 +182,25 @@ public function submitComprehensionEcrite(Request $request)
     $total = $questions->count();
     $percentage = ($correct / $total) * 100;
 
-    // 4. Déterminer le niveau CECRL
     $level = $this->convertToCECRL($percentage);
 
-        // 5. ENREGISTRER LE RÉSULTAT DANS LA BASE
-        TestResult::create([
-            'user_id' => Auth::id(),
-            'test_type' => 'comprehension_ecrite',
-            'score' => $correct,
-            'total' => $total,
-            'percentage' => round($percentage),
-            'level' => $level,
-        ]);
+    TestResult::create([
+        'user_id' => Auth::id(),
+        'test_type' => 'comprehension_ecrite',
+        'score' => $correct,
+        'total' => $total,
+        'percentage' => round($percentage),
+        'level' => $level,
+    ]);
 
-    // 5. Retourner la page Summary
-   return Inertia::render('Tests/Summary', [
-    'correct' => $correct,
-    'total' => $total,
-    'percentage' => round($percentage),
-    'level' => $level,
-    'testType' => 'comprehension-ecrite',
-]);
+    return Inertia::render('Tests/Summary', [
+        'correct' => $correct,
+        'total' => $total,
+        'percentage' => round($percentage),
+        'level' => $level,
+        'testType' => 'comprehension-ecrite',
+    ]);
 }
-
 
     public function store(Request $request)
     {

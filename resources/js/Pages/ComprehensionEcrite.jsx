@@ -6,26 +6,31 @@ export default function ComprehensionEcrite({ questions }) {
 
     const [activeExercise, setActiveExercise] = useState(1);
 
-    // 👉 AJOUT : state pour stocker les réponses
+    // Réponses de l'utilisateur
     const [answers, setAnswers] = useState({});
 
-    // Filtrer les questions de l'exercice actif
+    // Questions de l'exercice actif
     const exerciseQuestions = questions.filter(
         q => q.exercise_number === activeExercise
     );
 
-    // 👉 AJOUT : fonction pour envoyer les réponses
-    const handleSubmit = () => {
-        router.post('/submit-comprehension-ecrite', {
-            answers: answers
-        });
-    };
+   const handleSubmit = () => {
+    router.post('/submit-comprehension-ecrite', {
+        answers: answers,
+        question_ids: exerciseQuestions.map(q => q.id)
+    }, {
+        onSuccess: () => {
+            console.log("Summary affichée !");
+        }
+    });
+};
 
     return (
         <AuthenticatedLayout>
             <Head title="Compréhension Écrite" />
 
             <div className="p-10 space-y-10">
+
                 <h1 className="text-3xl font-bold text-center text-gray-200">
                     Compréhension Écrite
                 </h1>
@@ -53,28 +58,46 @@ export default function ComprehensionEcrite({ questions }) {
                 {/* Questions */}
                 <div className="space-y-10">
                     {exerciseQuestions.map((q) => (
-                        <div key={q.id} className="bg-white p-6 rounded-xl shadow space-y-6">
+                        <div key={q.id} className="bg-white p-6 rounded-xl shadow">
 
-                            <p className="font-medium">{q.question}</p>
+                            {/* LAYOUT IMAGE GAUCHE / TEXTE DROITE */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                            <div className="space-y-2">
-                                {q.choices.map((choice, i) => (
-                                    <label key={i} className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name={`q-${q.id}`}
-                                            onChange={() =>
-                                                setAnswers(prev => ({
-                                                    ...prev,
-                                                    [q.id]: i   // 👉 ENREGISTRE L’INDEX DU CHOIX
-                                                }))
-                                            }
+                                {/* IMAGE À GAUCHE */}
+                                <div className="flex justify-center">
+                                    {q.image && (
+                                        <img
+                                            src={q.image}
+                                            alt="Illustration"
+                                            className="rounded-lg max-h-80 object-contain"
                                         />
-                                        <span>{choice}</span>
-                                    </label>
-                                ))}
-                            </div>
+                                    )}
+                                </div>
 
+                                {/* TEXTE + QUESTIONS À DROITE */}
+                                <div className="space-y-4">
+                                    <p className="font-medium text-gray-800">{q.question}</p>
+
+                                    <div className="space-y-2">
+                                        {q.choices.map((choice, i) => (
+                                            <label key={i} className="flex items-center space-x-2">
+                                                <input
+                                                    type="radio"
+                                                    name={`q-${q.id}`}
+                                                    onChange={() =>
+                                                        setAnswers(prev => ({
+                                                            ...prev,
+                                                            [q.id]: i
+                                                        }))
+                                                    }
+                                                />
+                                                <span>{choice}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     ))}
                 </div>
