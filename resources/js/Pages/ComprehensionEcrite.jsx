@@ -64,12 +64,13 @@ export default function ComprehensionEcrite({ questions }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                                 {/* IMAGE À GAUCHE */}
-                                <div className="flex justify-center">
-                                    {q.image && (
+                              
+                                <div>
+                                    {q.image_url && (
                                         <img
-                                            src={q.image}
+                                            src={q.image_url}
                                             alt="Illustration"
-                                            className="rounded-lg max-h-80 object-contain"
+                                            className="rounded-lg w-full max-w-md border shadow"
                                         />
                                     )}
                                 </div>
