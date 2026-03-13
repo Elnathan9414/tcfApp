@@ -80,7 +80,11 @@ class QuestionController extends Controller
             'question' => $q->question,
             'choices' => $q->choices,
             'answer' => $q->answer,
-            'image_url' => $q->image_url, // OBLIGATOIRE
+            'image_url' => $q->image 
+                ? Storage::url($q->image) 
+                : null,
+
+
         ]);
 
     return Inertia::render('ComprehensionEcrite', [
