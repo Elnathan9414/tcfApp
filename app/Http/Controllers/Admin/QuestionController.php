@@ -68,33 +68,25 @@ class QuestionController extends Controller
     }
 
 
-    
-public function comprehensionEcrite()
+     public function comprehensionEcrite()
 {
     $questions = Question::where('type', 'comprehension_ecrite')
         ->orderBy('exercise_number')
         ->get()
-        ->map(function ($q) {
-            return [
-                'id' => $q->id,
-                'type' => $q->type,
-                'exercise_number' => $q->exercise_number,
-                'question' => $q->question,
-                'choices' => $q->choices ?? [],
-                'answer' => $q->answer,
-
-                // génération de l'URL de l'image si elle existe
-                'image_url' => $q->image 
-                    ? Storage::url($q->image)
-                    : null,
-            ];
-        });
+        ->map(fn($q) => [
+            'id' => $q->id,
+            'type' => $q->type,
+            'exercise_number' => $q->exercise_number,
+            'question' => $q->question,
+            'choices' => $q->choices,
+            'answer' => $q->answer,
+            'image_url' => $q->image_url, // OBLIGATOIRE
+        ]);
 
     return Inertia::render('ComprehensionEcrite', [
         'questions' => $questions
     ]);
 }
-
 public function submitComprehensionOrale(Request $request)
 {
     $answers = $request->answers;
