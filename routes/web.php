@@ -84,17 +84,17 @@ Route::middleware('auth')->group(function () {
     | TEST QUESTIONS
     */
 
-    Route::get('/comprehension-orale', [QuestionController::class, 'comprehensionOrale']);
-    Route::get('/comprehension-ecrite', [QuestionController::class, 'comprehensionEcrite']);
-    Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']);
+    Route::get('/comprehension-orale', [QuestionController::class, 'comprehensionOrale']) ->name('comprehension.orale');
+    Route::get('/comprehension-ecrite', [QuestionController::class, 'comprehensionEcrite']) ->name('comprehension.ecrite');
+    Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']) ->name('structure.langue');
 
     /*
     | TEST SUBMISSIONS
     */
 
-    Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']);
-     Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']);
-    Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']);
+    Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']) ->name('submit.comprehension_orale');
+     Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']) ->name('submit.comprehension_ecrite');
+    Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']) ->name('submit.structure_langue');
 
     Route::post('/tests/summary', [TestController::class, 'summary'])
         ->name('tests.summary');

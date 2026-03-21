@@ -158,28 +158,30 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                     </div>
                 </div>
+                {/* Mobile Menu */}
+
+                {/* Mobile Menu */}
                 {showingNavigationDropdown && (
                     <div className="sm:hidden">
                         <div className="space-y-1 pb-3 pt-2">
-
-                            {/* MENU COMMUN À TOUS */}
+                            {/* Liens principaux */}
                             <ResponsiveNavLink href={route('student.dashboard')} active={route().current('dashboard')}>
                                 Dashboard
                             </ResponsiveNavLink>
 
-                            <ResponsiveNavLink href={route('methodologie')}>
+                            <ResponsiveNavLink href="/methodologie" active={route().current('methodologie')}>
                                 Entrainement
                             </ResponsiveNavLink>
 
-                            <ResponsiveNavLink href={route('tests.options')}>
+                            <ResponsiveNavLink href="/tests/options" active={route().current('tests.options')}>
                                 Tests
                             </ResponsiveNavLink>
 
-                            <ResponsiveNavLink href={route('methodologie')}>
+                            <ResponsiveNavLink href="/methodologie" active={route().current('methodologie')}>
                                 Methodologie
                             </ResponsiveNavLink>
 
-                            <ResponsiveNavLink href={route('tests.options')}>
+                            <ResponsiveNavLink href="/tests/options" active={route().current('tests.options')}>
                                 Sujets récents
                             </ResponsiveNavLink>
 
@@ -187,64 +189,54 @@ export default function AuthenticatedLayout({ header, children }) {
                                 href="https://apprendre.tv5monde.com/fr/tcf/simulation-du-tcf"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300"
+                                className="block w-full border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                             >
                                 Examen blanc
                             </a>
 
-                            {/* ----------------------------- */}
-                            {/*   MENUS SPÉCIFIQUES PAR RÔLE  */}
-                            {/* ----------------------------- */}
-
-                            {/* ADMIN */}
+                            {/* Liens spécifiques aux rôles */}
                             {user.role === 'admin' && (
                                 <>
-                                    <ResponsiveNavLink href="/admin/questions">
+                                    <ResponsiveNavLink href="/admin/questions" active={route().current('admin.questions.index')}>
                                         Gestion des questions
                                     </ResponsiveNavLink>
-
-                                    <ResponsiveNavLink href="/admin/users">
+                                    <ResponsiveNavLink href="/admin/users" active={route().current('admin.users.index')}>
                                         Gestion des utilisateurs
                                     </ResponsiveNavLink>
                                 </>
                             )}
 
-                            {/* CONTRIBUTOR */}
                             {user.role === 'contributor' && (
-                                <>
-                                    <ResponsiveNavLink href="/admin/questions">
-                                        Gestion des questions
-                                    </ResponsiveNavLink>
-                                </>
+                                <ResponsiveNavLink href="/admin/questions" active={route().current('admin.questions.index')}>
+                                    Gestion des questions
+                                </ResponsiveNavLink>
                             )}
 
-                            {/* STUDENT → aucun lien admin */}
-                        </div>
-
-                        {/* Mobile User Section */}
-                        <div className="border-t border-gray-200 pb-1 pt-4 dark:border-gray-600">
-                            <div className="px-4">
-                                <div className="text-base font-medium text-gray-800 dark:text-gray-200">
-                                    {user.name}
-                                </div>
-                                <div className="text-sm font-medium text-gray-500">
-                                    {user.email}
-                                </div>
-                            </div>
-
-                            <div className="mt-3 space-y-1">
-                                <ResponsiveNavLink href={route('profile.edit')}>
-                                    Profile
+                            {user.role === 'student' && (
+                                <ResponsiveNavLink href="/tests/options" active={route().current('tests.options')}>
+                                    Passer un test
                                 </ResponsiveNavLink>
+                            )}
 
-                                <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                    Log Out
-                                </ResponsiveNavLink>
-                            </div>
+                            {/* Séparateur */}
+                            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+
+                            {/* Profil et déconnexion */}
+                            <ResponsiveNavLink href={route('profile.edit')}>
+                                Profil
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink
+                                method="post"
+                                href={route('logout')}
+                                as="button"
+                                className="w-full text-left"
+                            >
+                                Déconnexion
+                            </ResponsiveNavLink>
                         </div>
                     </div>
                 )}
-
 
             </nav>
 
