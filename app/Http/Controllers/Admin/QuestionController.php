@@ -48,6 +48,13 @@ class QuestionController extends Controller
         'questions' => $questions,
     ]);
 }
+
+    public function ExpressionEcrite()
+    {
+        return Inertia::render('ExpressionEcrite');
+    }
+
+
        public function structureLangue()
     {
         $questions = Question::where('type', 'structure_langue')
@@ -280,4 +287,5 @@ public function submitComprehensionEcrite(Request $request)
             return 'A1';
         }
     }
+
 }

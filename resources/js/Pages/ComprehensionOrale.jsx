@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 export default function ComprehensionOrale({ questions }) {
     const [activeExercise, setActiveExercise] = useState(1);
     const [answers, setAnswers] = useState({});
-    const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes en secondes
+    const [timeRemaining, setTimeRemaining] = useState(20 * 60); // 20 minutes en secondes
     const timerRef = useRef(null);
 
     // Filtrer les questions de l'exercice actif

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 export default function StructureDeLaLangue({ questions }) {
     const [activeExercise, setActiveExercise] = useState(1);
     const [answers, setAnswers] = useState({});
-    const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes
+    const [timeRemaining, setTimeRemaining] = useState(10 * 60); // 10 minutes
     const timerRef = useRef(null);
 
     // Filtrer les questions de l'exercice actif

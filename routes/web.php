@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TestResultController;
+use App\Http\Controllers\ExpressionEcriteController;    
 
 /*
 |--------------------------------------------------------------------------
@@ -87,7 +88,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/comprehension-orale', [QuestionController::class, 'comprehensionOrale']) ->name('comprehension.orale');
     Route::get('/comprehension-ecrite', [QuestionController::class, 'comprehensionEcrite']) ->name('comprehension.ecrite');
     Route::get('/structure-de-la-langue', [QuestionController::class, 'structureLangue']) ->name('structure.langue');
+    
 
+
+
+
+Route::middleware(['auth'])->group(function () {
+
+    // Niveau 1 : années
+    Route::get('/expression-ecrite', [ExpressionEcriteController::class, 'years']);
+
+    // Niveau 2 : mois
+    Route::get('/expression-ecrite/{year}', [ExpressionEcriteController::class, 'months']);
+
+    // Niveau 3 : tâches
+    Route::get('/expression-ecrite/{year}/{month}', [ExpressionEcriteController::class, 'tasks']);
+    Route::get('/expression-ecrite/{year}/{month}/tache/{task}', [ExpressionEcriteController::class, 'write']);
+
+});
+
+        
     /*
     | TEST SUBMISSIONS
     */
@@ -95,6 +115,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/submit-comprehension-orale', [QuestionController::class, 'submitComprehensionOrale']) ->name('submit.comprehension_orale');
      Route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']) ->name('submit.comprehension_ecrite');
     Route::post('/submit-structure-langue', [QuestionController::class, 'submitStructureLangue']) ->name('submit.structure_langue');
+    route::post('/submit-comprehension-ecrite', [QuestionController::class, 'submitComprehensionEcrite']) ->name('submit.comprehension_ecrite');   
 
     Route::post('/tests/summary', [TestController::class, 'summary'])
         ->name('tests.summary');
