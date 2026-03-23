@@ -4,23 +4,18 @@ import { useState, useEffect } from 'react';
 
 export default function Write({ year, month, task, label, subject }) {
 
-    // Convertir la tâche en nombre
-    const taskNum = Number(task);
-
-    // Durée selon la tâche
     const getInitialTime = (taskNumber) => {
-        switch (taskNumber) {
-            case 1: return 10 * 60; // 10 minutes
-            case 2: return 20 * 60; // 20 minutes
-            case 3: return 30 * 60; // 30 minutes
+        switch (Number(taskNumber)) {
+            case 1: return 10 * 60;
+            case 2: return 20 * 60;
+            case 3: return 30 * 60;
             default: return 10 * 60;
         }
     };
 
-    const [remaining, setRemaining] = useState(getInitialTime(taskNum));
+    const [remaining, setRemaining] = useState(getInitialTime(task));
     const [text, setText] = useState("");
 
-    // TIMER DÉCRÉMENTANT
     useEffect(() => {
         if (remaining <= 0) return;
 
@@ -37,12 +32,8 @@ export default function Write({ year, month, task, label, subject }) {
         return `${m}:${s}`;
     };
 
-    // COMPTEUR DE MOTS
     const countWords = (str) => {
-        return str
-            .trim()
-            .split(/\s+/)
-            .filter(Boolean).length;
+        return str.trim().split(/\s+/).filter(Boolean).length;
     };
 
     const wordCount = countWords(text);
@@ -51,58 +42,55 @@ export default function Write({ year, month, task, label, subject }) {
         <AuthenticatedLayout>
             <Head title="Expression Écrite — Rédaction" />
 
-            <div className="p-10 max-w-4xl mx-auto space-y-8">
+            <div className="max-w-4xl mx-auto p-10 space-y-10">
 
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gray-200">
-                        Tâche {taskNum} — {label}
+                        Tâche {task} — {label}
                     </h1>
 
-                    <div className={`text-xl font-semibold ${remaining <= 60 ? "text-red-500" : "text-blue-400"}`}>
-                        ⏱️Temps restant {formatTime(remaining)}
+                    <div className={`text-2xl font-bold px-4 py-2 rounded-lg ${
+                        remaining <= 60 ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
+                    }`}>
+                        ⏱ {formatTime(remaining)}
                     </div>
                 </div>
 
                 {/* SUJET */}
-                <div className="bg-white p-6 rounded-xl shadow space-y-4">
+                <div className="bg-white p-6 rounded-xl shadow border border-gray-200 space-y-4">
                     <h2 className="text-xl font-semibold text-gray-800">Sujet</h2>
-                    <p className="text-gray-700">{subject}</p>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                        {subject}
+                    </p>
                 </div>
 
                 {/* TEXTAREA */}
-                <div className="bg-white p-6 rounded-xl shadow space-y-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Votre texte</h2>
+                <div className="bg-white p-6 rounded-xl shadow border border-gray-200">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-3">Votre texte</h2>
 
                     <textarea
-                        className="w-full h-64 p-4 border rounded-lg focus:ring focus:ring-blue-300"
-                        placeholder="Écrivez votre texte ici..."
+                        className="w-full h-72 p-4 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                        placeholder="Commencez à écrire ici..."
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         disabled={remaining <= 0}
-                    ></textarea>
+                    />
 
-                    <p className="text-sm text-gray-500">
-                        Nombre de mots : {wordCount}
+                    <p className="text-sm text-gray-500 mt-2">
+                        Nombre de mots : <strong>{wordCount}</strong>
                     </p>
-
-                    {remaining <= 0 && (
-                        <p className="text-red-600 font-semibold">
-                            ⛔ Temps écoulé — vous ne pouvez plus écrire.
-                        </p>
-                    )}
                 </div>
 
                 {/* BOUTON */}
                 <div className="text-center">
                     <button
-                        className="px-6 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+                        className="px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400"
                         disabled={remaining <= 0}
                     >
                         Tester ma production
                     </button>
                 </div>
-
             </div>
         </AuthenticatedLayout>
     );

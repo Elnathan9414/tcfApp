@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExpressionTask;
+use App\Models\Question;
 use Inertia\Inertia;
 
 class ExpressionEcriteController extends Controller
 {
-    /**
-     * NIVEAU 1 : Affiche les années disponibles
-     */
     public function years()
     {
+        // Récupérer les années disponibles depuis la base
+        $years = Question::where('type', 'expression_ecrite')
+            ->select('year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
         return Inertia::render('ExpressionEcrite/Index', [
-            'years' => [2026, 2025, 2024],
+            'years' => $years,
         ]);
     }
 
-    /**
-     * NIVEAU 2 : Affiche les mois d'une année
-     */
     public function months($year)
     {
-        // Tu peux plus tard rendre ça dynamique via la base
-        $months = [
+        $monthsList = [
             ['slug' => 'janvier', 'label' => 'Janvier'],
             ['slug' => 'fevrier', 'label' => 'Février'],
             ['slug' => 'mars', 'label' => 'Mars'],
@@ -38,25 +38,23 @@ class ExpressionEcriteController extends Controller
             ['slug' => 'decembre', 'label' => 'Décembre'],
         ];
 
-        // Compter combien de tâches existent pour chaque mois
-        foreach ($months as &$m) {
-            $m['count'] = ExpressionTask::where('year', $year)
+        foreach ($monthsList as &$m) {
+            $m['count'] = Question::where('type', 'expression_ecrite')
+                ->where('year', $year)
                 ->where('month', $m['slug'])
                 ->count();
         }
 
         return Inertia::render('ExpressionEcrite/Index', [
             'selectedYear' => $year,
-            'months' => $months,
+            'months' => $monthsList,
         ]);
     }
 
-    /**
-     * NIVEAU 3 : Affiche les tâches d'un mois donné
-     */
     public function tasks($year, $month)
     {
-        $tasks = ExpressionTask::where('year', $year)
+        $tasks = Question::where('type', 'expression_ecrite')
+            ->where('year', $year)
             ->where('month', $month)
             ->orderBy('task_number')
             ->get()
@@ -74,19 +72,21 @@ class ExpressionEcriteController extends Controller
             'tasks' => $tasks,
         ]);
     }
-    public function write($year, $month, $task)
-{
-    $taskData = ExpressionTask::where('year', $year)
-        ->where('month', $month)
-        ->where('task_number', $task)
-        ->firstOrFail();
 
-    return Inertia::render('ExpressionEcrite/Write', [
-        'year' => $year,
-        'month' => $month,
-        'task' => $task,
-        'label' => $taskData->label,
-        'subject' => $taskData->subject,
-    ]);
-}
+    public function write($year, $month, $task)
+    {
+        $taskData = Question::where('type', 'expression_ecrite')
+            ->where('year', $year)
+            ->where('month', $month)
+            ->where('task_number', $task)
+            ->firstOrFail();
+
+        return Inertia::render('ExpressionEcrite/Write', [
+            'year' => $year,
+            'month' => $month,
+            'task' => $task,
+            'label' => $taskData->label,
+            'subject' => $taskData->subject,
+        ]);
+    }
 }
