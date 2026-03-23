@@ -18,6 +18,14 @@ class Question extends Model
         'answer',
         'audio',
         'image',
+        // Expression écrite
+        'year',
+        'month',
+        'task_number',
+        'label',
+        'subject',
+
+
     ];
 
     protected $casts = [
