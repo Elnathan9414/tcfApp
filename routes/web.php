@@ -104,6 +104,8 @@ Route::middleware(['auth'])->group(function () {
     // Niveau 3 : tâches
     Route::get('/expression-ecrite/{year}/{month}', [ExpressionEcriteController::class, 'tasks']);
     Route::get('/expression-ecrite/{year}/{month}/{task}', [ExpressionEcriteController::class, 'write']);
+    Route::post('/expression-ecrite/correct', [ExpressionEcriteController::class, 'correct'])
+        ->name('expression_ecrite.correct');
 });
 
         
