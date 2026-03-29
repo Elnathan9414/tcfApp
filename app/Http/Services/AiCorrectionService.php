@@ -3,105 +3,91 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class AiCorrectionService
 {
     public function correctText(string $text, int $task)
     {
+        // Vérifier si la clé existe
+        if (!env('DEEPSEEK_API_KEY')) {
+            return [
+                'error' => true,
+                'message' => 'Clé API DeepSeek manquante. Ajoutez DEEPSEEK_API_KEY dans Laravel Cloud.',
+                'details' => null,
+            ];
+        }
+
         $prompt = $this->buildPrompt($text, $task);
 
-        $response = Http::withToken(config('services.deepseek.key'))
-            ->retry(3, 1000) // retry automatique
-            ->post('https://api.deepseek.com/chat/completions', [
-                'model' => 'deepseek-chat',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'Tu es un correcteur officiel du TCF Canada. Réponds uniquement en JSON valide.'
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $prompt
-                    ],
-                ],
-                'temperature' => 0.2,
-            ]);
+        // Appel API DeepSeek
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('DEEPSEEK_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])->post('https://api.deepseek.com/chat/completions', [
+            'model' => 'deepseek-chat',
+            'messages' => [
+                ['role' => 'system', 'content' => 'Tu es un correcteur officiel du TCF Canada.'],
+                ['role' => 'user', 'content' => $prompt],
+            ],
+            'temperature' => 0.2,
+        ]);
 
-        // Gestion erreur API
+        // Si DeepSeek renvoie une erreur HTTP (403, 401, 500…)
         if ($response->failed()) {
-            Log::error('DeepSeek API Error', [
-                'status' => $response->status(),
-                'body' => $response->json()
-            ]);
-
             return [
                 'error' => true,
-                'message' => 'Erreur API DeepSeek'
+                'message' => 'Erreur API DeepSeek',
+                'details' => $response->json(),
             ];
         }
 
-        $content = $response->json()['choices'][0]['message']['content'] ?? '';
+        // Extraire le contenu
+        $json = $response->json();
 
-        // Extraction du JSON propre
-        $cleanJson = $this->extractJson($content);
-
-        $decoded = json_decode($cleanJson, true);
-
-        // Vérification JSON valide
-        if (!$decoded) {
-            Log::error('Invalid JSON from AI', [
-                'raw' => $content
-            ]);
-
+        if (!isset($json['choices'][0]['message']['content'])) {
             return [
                 'error' => true,
-                'message' => 'Réponse IA invalide'
+                'message' => 'Réponse DeepSeek invalide',
+                'details' => $json,
             ];
         }
 
-        // Vérification structure minimale
-        if (!isset($decoded['score'], $decoded['niveau'])) {
+        // DeepSeek renvoie du texte → on le convertit en JSON
+        $content = json_decode($json['choices'][0]['message']['content'], true);
+
+        if (!$content) {
             return [
                 'error' => true,
-                'message' => 'Structure JSON invalide'
+                'message' => 'Impossible de décoder la réponse JSON de DeepSeek.',
+                'details' => $json['choices'][0]['message']['content'],
             ];
         }
 
-        return $decoded;
-    }
-
-    private function extractJson(string $text): string
-    {
-        preg_match('/\{.*\}/s', $text, $matches);
-        return $matches[0] ?? '';
+        return $content;
     }
 
     private function buildPrompt(string $text, int $task)
     {
-        return <<<PROMPT
+        return "
 Corrige ce texte selon les critères officiels du TCF Canada.
 
 Tâche : $task
-Texte :
+Texte de l’utilisateur :
 $text
 
-IMPORTANT :
-- Réponds UNIQUEMENT avec un JSON valide
-- Ne mets aucun texte avant ou après
-- Respecte STRICTEMENT la structure
+Retourne STRICTEMENT ce JSON :
 
-Format attendu :
 {
-  "score": "0 à 20",
-  "niveau": "A2/B1/B2",
-  "points_forts": ["..."],
-  "erreurs": [
-    {"type": "grammaire", "detail": "..."}
+  \"score\": \"0 à 20\",
+  \"niveau\": \"A2/B1/B2\",
+  \"points_forts\": [\"...\", \"...\"],
+  \"erreurs\": [
+    {\"type\": \"grammaire\", \"detail\": \"...\"},
+    {\"type\": \"lexique\", \"detail\": \"...\"}
   ],
-  "reformulation": "...",
-  "conseils": ["..."]
+  \"reformulation\": \"Texte corrigé et amélioré\",
+  \"conseils\": [\"...\", \"...\"] 
 }
-PROMPT;
+        ";
     }
 }

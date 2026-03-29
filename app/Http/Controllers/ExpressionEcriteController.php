@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Services\AiCorrectionService;
 
 class ExpressionEcriteController extends Controller
 {
     public function years()
     {
-        // Récupérer les années disponibles depuis la base
         $years = Question::where('type', 'expression_ecrite')
             ->select('year')
             ->distinct()
@@ -92,19 +92,27 @@ class ExpressionEcriteController extends Controller
     }
 
     public function correct(Request $request)
-{
-    $request->validate([
-        'text' => 'required|string|min:20',
-        'task' => 'required|integer',
-    ]);
+    {
+        $request->validate([
+            'text' => 'required|string|min:20',
+            'task' => 'required|integer',
+        ]);
 
-    $service = new \App\Services\AiCorrectionService();
+        $service = new AiCorrectionService();
+        $result = $service->correctText($request->text, $request->task);
 
-    $result = $service->correctText(
-        $request->text,
-        $request->task
-    );
+        // Gestion propre des erreurs DeepSeek
+        if (isset($result['error']) && $result['error'] === true) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+                'details' => $result['details'] ?? null,
+            ], 500);
+        }
 
-    return response()->json($result);
-}
+        return response()->json([
+            'success' => true,
+            'data' => $result,
+        ]);
+    }
 }
