@@ -10,6 +10,7 @@ class AiCorrectionService
     {
         $prompt = $this->buildPrompt($text, $task);
 
+        // Appel DeepSeek
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('DEEPSEEK_API_KEY'),
             'Content-Type' => 'application/json',
@@ -22,8 +23,29 @@ class AiCorrectionService
             'temperature' => 0.2,
         ]);
 
-        // DeepSeek renvoie du texte brut → on le convertit en JSON
-        return json_decode($response->json()['choices'][0]['message']['content'], true);
+        // Si DeepSeek renvoie une erreur (403, 401, 500…)
+        if ($response->failed()) {
+            return [
+                'error' => true,
+                'message' => 'Erreur API DeepSeek',
+                'details' => $response->json(),
+            ];
+        }
+
+        // Extraire le contenu
+        $content = $response->json()['choices'][0]['message']['content'] ?? null;
+
+        // Si DeepSeek renvoie un format inattendu
+        if (!$content) {
+            return [
+                'error' => true,
+                'message' => 'Réponse DeepSeek invalide',
+                'details' => $response->json(),
+            ];
+        }
+
+        // Retourner le JSON généré par DeepSeek
+        return json_decode($content, true);
     }
 
     private function buildPrompt(string $text, int $task)
