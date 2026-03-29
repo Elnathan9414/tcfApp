@@ -18,6 +18,20 @@ export default function Write({ year, month, task, label, subject }) {
 
     const [remaining, setRemaining] = useState(getInitialTime(task));
     const [text, setText] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+
+    const sendForCorrection = async () => {
+        setLoading(true);
+
+        const response = await axios.post('/expression-ecrite/correct', {
+            text,
+            task,
+        });
+
+        setResult(response.data);
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (remaining <= 0) return;
@@ -56,11 +70,10 @@ export default function Write({ year, month, task, label, subject }) {
                         Expression écrite — Tâche {task}
                     </h1>
 
-                    <div className={`text-2xl font-bold px-4 py-2 rounded-lg shadow ${
-                        remaining <= 60
+                    <div className={`text-2xl font-bold px-4 py-2 rounded-lg shadow ${remaining <= 60
                             ? "bg-red-100 text-red-600"
                             : "bg-blue-100 text-blue-600"
-                    }`}>
+                        }`}>
                         ⏱ {formatTime(remaining)}
                     </div>
                 </div>
@@ -108,12 +121,43 @@ export default function Write({ year, month, task, label, subject }) {
                 {/* BOUTON */}
                 <div className="text-center">
                     <button
+                        onClick={sendForCorrection}
                         className="px-10 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400"
-                        disabled={remaining <= 0}
+                        disabled={remaining <= 0 || loading}
                     >
-                        Tester ma production
+                        {loading ? "Analyse en cours..." : "Tester ma production"}
                     </button>
                 </div>
+                {result && (
+    <div className="bg-white p-6 rounded-xl shadow border border-gray-200 space-y-4 mt-10">
+
+        <h2 className="text-2xl font-bold text-gray-800">Résultat de la correction</h2>
+
+        <p><strong>Score :</strong> {result.score}/20</p>
+        <p><strong>Niveau estimé :</strong> {result.niveau}</p>
+
+        <h3 className="text-xl font-semibold mt-4">Points forts</h3>
+        <ul className="list-disc ml-6 text-green-700">
+            {result.points_forts.map((p, i) => <li key={i}>{p}</li>)}
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-4">Erreurs détectées</h3>
+        <ul className="list-disc ml-6 text-red-700">
+            {result.erreurs.map((e, i) => (
+                <li key={i}><strong>{e.type} :</strong> {e.detail}</li>
+            ))}
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-4">Texte reformulé</h3>
+        <p className="bg-gray-100 p-4 rounded">{result.reformulation}</p>
+
+        <h3 className="text-xl font-semibold mt-4">Conseils</h3>
+        <ul className="list-disc ml-6 text-blue-700">
+            {result.conseils.map((c, i) => <li key={i}>{c}</li>)}
+        </ul>
+
+    </div>
+)}
             </div>
         </AuthenticatedLayout>
     );

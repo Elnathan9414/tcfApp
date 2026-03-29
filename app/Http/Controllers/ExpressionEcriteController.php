@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class ExpressionEcriteController extends Controller
 {
@@ -89,4 +90,21 @@ class ExpressionEcriteController extends Controller
             'subject' => $taskData->subject,
         ]);
     }
+
+    public function correct(Request $request)
+{
+    $request->validate([
+        'text' => 'required|string|min:20',
+        'task' => 'required|integer',
+    ]);
+
+    $service = new \App\Services\AiCorrectionService();
+
+    $result = $service->correctText(
+        $request->text,
+        $request->task
+    );
+
+    return response()->json($result);
+}
 }
