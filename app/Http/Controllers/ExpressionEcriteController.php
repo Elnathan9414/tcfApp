@@ -92,7 +92,7 @@ class ExpressionEcriteController extends Controller
         ]);
     }
 
-    public function correct(Request $request)
+    public function correct(Request $request, AiCorrectionService $service)
     {
         $request->validate([
             'text' => 'required|string|min:20',
@@ -100,25 +100,30 @@ class ExpressionEcriteController extends Controller
         ]);
 
         try {
-            $service = new AiCorrectionService();
             $result = $service->correctText($request->text, $request->task);
 
+            // ❌ erreur IA (Gemini, JSON, etc.)
             if (isset($result['error']) && $result['error'] === true) {
-                Log::error('DeepSeek correction failed', ['task' => $request->task, 'details' => $result['details'] ?? null]);
+                Log::error('AI correction failed', [
+                    'task' => $request->task,
+                    'details' => $result,
+                ]);
 
                 return response()->json([
                     'success' => false,
                     'message' => $result['message'],
                     'details' => $result['details'] ?? null,
-                ], 500);
+                ], 200); // ✅ IMPORTANT
             }
 
+            // ✅ succès
             return response()->json([
                 'success' => true,
                 'data' => $result,
             ]);
+
         } catch (\Throwable $e) {
-            Log::error('Erreur lors de la correction d\'expression écrite', [
+            Log::error('Erreur correction expression écrite', [
                 'exception' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'task' => $request->task,
@@ -126,9 +131,8 @@ class ExpressionEcriteController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Une erreur est survenue lors de la correction. Merci de réessayer plus tard.',
-                'details' => $e->getMessage(),
-            ], 500);
+                'message' => 'Une erreur serveur est survenue.',
+            ], 500); // ✅ vrai 500 uniquement ici
         }
     }
 }
