@@ -24,13 +24,37 @@ export default function Write({ year, month, task, label, subject }) {
     const sendForCorrection = async () => {
         setLoading(true);
 
-        const response = await axios.post('/expression-ecrite/correct', {
-            text,
-            task,
-        });
+        try {
+            const response = await axios.post('/expression-ecrite/correct', {
+                text,
+                task,
+            });
 
-        setResult(response.data);
-        setLoading(false);
+            if (response.data.success) {
+                setResult(response.data.data);
+            } else {
+                setResult({
+                    score: '—',
+                    niveau: '—',
+                    points_forts: [],
+                    erreurs: [{ type: 'Erreur', detail: response.data.message || 'Erreur inconnu' }],
+                    reformulation: response.data.message || 'Erreur inconnue',
+                    conseils: [],
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            setResult({
+                score: '—',
+                niveau: '—',
+                points_forts: [],
+                erreurs: [{ type: 'Server', detail: error.response?.data?.message || error.message }],
+                reformulation: 'La correction a échoué.',
+                conseils: [],
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {

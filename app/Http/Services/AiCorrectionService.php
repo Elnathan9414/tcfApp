@@ -23,7 +23,7 @@ class AiCorrectionService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('DEEPSEEK_API_KEY'),
             'Content-Type' => 'application/json',
-        ])->post('https://api.deepseek.com/chat/completions', [
+        ])->timeout(30)->post('https://api.deepseek.com/chat/completions', [
             'model' => 'deepseek-chat',
             'messages' => [
                 ['role' => 'system', 'content' => 'Tu es un correcteur officiel du TCF Canada.'],
@@ -37,7 +37,7 @@ class AiCorrectionService
             return [
                 'error' => true,
                 'message' => 'Erreur API DeepSeek',
-                'details' => $response->json(),
+                'details' => $response->json() ?? $response->body(),
             ];
         }
 
@@ -53,17 +53,21 @@ class AiCorrectionService
         }
 
         // DeepSeek renvoie du texte → on le convertit en JSON
-        $content = json_decode($json['choices'][0]['message']['content'], true);
+        try {
+            $content = json_decode($json['choices'][0]['message']['content'], true, 512, JSON_THROW_ON_ERROR);
 
-        if (!$content) {
+            if (!is_array($content)) {
+                throw new \UnexpectedValueException('Contenu DeepSeek non attendu.');
+            }
+
+            return $content;
+        } catch (\Throwable $e) {
             return [
                 'error' => true,
                 'message' => 'Impossible de décoder la réponse JSON de DeepSeek.',
-                'details' => $json['choices'][0]['message']['content'],
+                'details' => $json['choices'][0]['message']['content'] ?? $response->body(),
             ];
         }
-
-        return $content;
     }
 
     private function buildPrompt(string $text, int $task)

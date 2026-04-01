@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Services\AiCorrectionService;
 
 class ExpressionEcriteController extends Controller
@@ -95,24 +96,39 @@ class ExpressionEcriteController extends Controller
     {
         $request->validate([
             'text' => 'required|string|min:20',
-            'task' => 'required|integer',
+            'task' => 'required|integer|exists:questions,task_number',
         ]);
 
-        $service = new AiCorrectionService();
-        $result = $service->correctText($request->text, $request->task);
+        try {
+            $service = new AiCorrectionService();
+            $result = $service->correctText($request->text, $request->task);
 
-        // Gestion propre des erreurs DeepSeek
-        if (isset($result['error']) && $result['error'] === true) {
+            if (isset($result['error']) && $result['error'] === true) {
+                Log::error('DeepSeek correction failed', ['task' => $request->task, 'details' => $result['details'] ?? null]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'],
+                    'details' => $result['details'] ?? null,
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Erreur lors de la correction d\'expression écrite', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'task' => $request->task,
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => $result['message'],
-                'details' => $result['details'] ?? null,
+                'message' => 'Une erreur est survenue lors de la correction. Merci de réessayer plus tard.',
+                'details' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $result,
-        ]);
     }
 }
