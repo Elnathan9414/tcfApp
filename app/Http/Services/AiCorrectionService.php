@@ -8,8 +8,11 @@ class AiCorrectionService
 {
     public function correctText(string $text, int $task)
     {
+        // Récupérer la clé depuis la configuration (nom de la clé = 'key')
+        $apiKey = config('services.deepseek.key');
+
         // Vérifier si la clé existe
-        if (!env('DEEPSEEK_API_KEY')) {
+        if (!$apiKey) {
             return [
                 'error' => true,
                 'message' => 'Clé API DeepSeek manquante. Ajoutez DEEPSEEK_API_KEY dans Laravel Cloud.',
@@ -21,7 +24,7 @@ class AiCorrectionService
 
         // Appel API DeepSeek
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('DEEPSEEK_API_KEY'),
+            'Authorization' => 'Bearer ' . $apiKey,
             'Content-Type' => 'application/json',
         ])->timeout(30)->post('https://api.deepseek.com/chat/completions', [
             'model' => 'deepseek-chat',
@@ -32,7 +35,7 @@ class AiCorrectionService
             'temperature' => 0.2,
         ]);
 
-        // Si DeepSeek renvoie une erreur HTTP (403, 401, 500…)
+        // Si DeepSeek renvoie une erreur HTTP
         if ($response->failed()) {
             return [
                 'error' => true,
@@ -41,7 +44,6 @@ class AiCorrectionService
             ];
         }
 
-        // Extraire le contenu
         $json = $response->json();
 
         if (!isset($json['choices'][0]['message']['content'])) {
@@ -52,7 +54,7 @@ class AiCorrectionService
             ];
         }
 
-        // DeepSeek renvoie du texte → on le convertit en JSON
+        // Décodage du JSON retourné par DeepSeek
         try {
             $content = json_decode($json['choices'][0]['message']['content'], true, 512, JSON_THROW_ON_ERROR);
 
@@ -76,7 +78,7 @@ class AiCorrectionService
 Corrige ce texte selon les critères officiels du TCF Canada.
 
 Tâche : $task
-Texte de l’utilisateur :
+Texte de l'utilisateur :
 $text
 
 Retourne STRICTEMENT ce JSON :
