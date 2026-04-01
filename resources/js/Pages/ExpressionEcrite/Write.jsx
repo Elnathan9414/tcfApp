@@ -157,7 +157,7 @@ export default function Write({ year, month, task, label, subject }) {
 
         <h2 className="text-2xl font-bold text-gray-800">Résultat de la correction</h2>
 
-        <p><strong>Score :</strong> {result.score}/20</p>
+        <p><strong>Score :</strong> {result.score}</p>
         <p><strong>Niveau estimé :</strong> {result.niveau}</p>
 
         <h3 className="text-xl font-semibold mt-4">Points forts</h3>
